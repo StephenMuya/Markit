@@ -1,5 +1,6 @@
 playwright
 beautifulsoup4
-openai
+google-generativeai
 python-dotenv
 pytest
+notion-client
