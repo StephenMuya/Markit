@@ -27,9 +27,9 @@ async function createPhase2Databases() {
         console.log("Creating 'Equity' database...");
         const equityDb = await notion.databases.create({
             parent: { page_id: parentPageId },
-            title: [{ type: "text", text: { content: "Deal Headline" } }],
+            title: [{ type: "text", text: { content: "Equity" } }],
             properties: {
-                "Transaction Summary": { rich_text: {} },
+                "Transaction Summary": { title: {} },
                 "Date Published": { date: {} },
                 "Structure": { select: { options: [{ name: "JV Equity", color: "purple" }, { name: "Recap", color: "orange" }] } },
                 "Market": { select: {} },
