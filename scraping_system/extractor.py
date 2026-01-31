@@ -1,12 +1,14 @@
 import json
 import os
 import hashlib
-from openai import OpenAI
+import time
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 
 def generate_article_id(url, date_scraped):
@@ -16,29 +18,47 @@ def generate_article_id(url, date_scraped):
 
 
 def extract_deal_info(article_text):
-    """Sends article text to OpenAI to extract deal info."""
+    """Sends article text to Gemini to extract deal info."""
 
-    # Read criteria from prompts.md (or hardcoded here for simplicity in this script)
-    system_prompt = """
+    prompt = (
+        """
     Role: Financial Data Analyst.
-    Task: Extract mentions of EQUITY PARTNERS in commercial real estate deals.
-    Output JSON: { "deals": [ { "equity_partner": "", "developer": "", "structure": "", "market": "", "summary": "", "confidence": 0.9 } ] }
-    If no deal, return { "deals": [] }.
+    Task: Extract mentions of EQUITY PARTNERS in commercial real estate deals from the following article.
+    Output ONLY valid JSON: { "deals": [ { "equity_partner": "", "developer": "", "structure": "", "market": "", "summary": "", "confidence": 0.9 } ] }
+    If no deal is found, return: { "deals": [] }
+    
+    Article:
     """
+        + article_text
+    )
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": article_text},
-            ],
-            response_format={"type": "json_object"},
-        )
-        return json.loads(response.choices[0].message.content)
-    except Exception as e:
-        print(f"Error calling OpenAI: {e}")
-        return {"deals": []}
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # Add a small delay for free tier rate limits
+            if attempt > 0:
+                print(f"Retrying in 5 seconds...")
+                time.sleep(5)
+
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    response_mime_type="application/json"
+                ),
+            )
+            return json.loads(response.text)
+        except Exception as e:
+            if "429" in str(e):
+                print(
+                    f"Rate limit hit. Waiting 15s... (Attempt {attempt + 1}/{max_retries})"
+                )
+                time.sleep(15)
+            else:
+                print(f"Error calling Gemini: {e}")
+                # Don't retry on non-rate-limit errors to save time
+                return {"deals": []}
+
+    return {"deals": []}
 
 
 def process_scraped_data(
@@ -68,6 +88,9 @@ def process_scraped_data(
             deal["source_url"] = article["url"]
             deal["source_name"] = article["source"]
             all_deals.append(deal)
+
+        # Add delay between articles to respect RPM
+        time.sleep(2)
 
     with open(output_file, "w") as f:
         json.dump(all_deals, f, indent=2)
