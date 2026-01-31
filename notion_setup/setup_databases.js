@@ -11,25 +11,16 @@ async function createDatabases() {
     }
 
     try {
-        console.log("Creating 'People' database...");
-        const peopleDb = await notion.databases.create({
-            parent: { page_id: parentPageId },
-            title: [{ type: "text", text: { content: "People" } }],
-            properties: {
-                Name: { title: {} },
-                Email: { email: {} },
-                Phone: { phone_number: {} },
-                Company: { rich_text: {} },
-                Tags: { multi_select: {} },
-            },
-        });
-        console.log(`Created People DB: ${peopleDb.id}`);
+        // Use existing People DB ID
+        const peopleDbId = "2f9d5447-bbe0-8183-9ea5-fa0ca8c14611";
+        console.log(`Using existing People DB: ${peopleDbId}`);
 
         console.log("Creating 'Interactions' database...");
         const interactionsDb = await notion.databases.create({
             parent: { page_id: parentPageId },
-            title: [{ type: "text", text: { content: "Topic/Title" } }],
+            title: [{ type: "text", text: { content: "Interactions" } }],
             properties: {
+                "Topic": { title: {} }, // Added required title property
                 Date: { date: {} },
                 Type: {
                     select: {
@@ -41,7 +32,7 @@ async function createDatabases() {
                     },
                 },
                 Summary: { rich_text: {} },
-                "Participants": { relation: { database_id: peopleDb.id, single_property: {} } },
+                "Participants": { relation: { database_id: peopleDbId, single_property: {} } },
                 "Recording URL": { url: {} },
                 Status: {
                     select: {
@@ -58,8 +49,9 @@ async function createDatabases() {
         console.log("Creating 'Needs Review' database...");
         const reviewDb = await notion.databases.create({
             parent: { page_id: parentPageId },
-            title: [{ type: "text", text: { content: "Issue Summary" } }],
+            title: [{ type: "text", text: { content: "Needs Review" } }],
             properties: {
+                "Issue": { title: {} }, // Added required title property
                 "Original Text": { rich_text: {} },
                 "Confidence Score": { number: {} },
                 "Reason": { rich_text: {} },
@@ -71,8 +63,9 @@ async function createDatabases() {
         console.log("Creating 'Automation Log' database...");
         const logDb = await notion.databases.create({
             parent: { page_id: parentPageId },
-            title: [{ type: "text", text: { content: "Event" } }],
+            title: [{ type: "text", text: { content: "Automation Log" } }],
             properties: {
+                "Event Name": { title: {} }, // Added required title property
                 Timestamp: { created_time: {} },
                 Status: {
                     select: {
@@ -90,7 +83,7 @@ async function createDatabases() {
 
         console.log("\nSetup Complete!");
         console.log("-----------------------------------");
-        console.log(`People DB ID: ${peopleDb.id}`);
+        console.log(`People DB ID: ${peopleDbId}`);
         console.log(`Interactions DB ID: ${interactionsDb.id}`);
         console.log(`Needs Review DB ID: ${reviewDb.id}`);
         console.log(`Automation Log DB ID: ${logDb.id}`);
