@@ -1,0 +1,20 @@
+{
+    "name": "workana-audio-scraping",
+    "version": "1.0.0",
+    "description": "Automation systems for Notion CRM",
+    "main": "index.js",
+    "scripts": {
+        "start": "node server.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "@notionhq/client": "^2.2.14",
+        "dotenv": "^16.4.5",
+        "fuse.js": "^7.0.0",
+        "openai": "^4.28.0",
+        "express": "^4.21.2",
+        "body-parser": "^1.20.3"
+    },
+    "author": "",
+    "license": "ISC"
+}
