@@ -4,7 +4,7 @@ from notion_client import Client
 from dotenv import load_dotenv
 
 load_dotenv()
-notion = Client(auth=os.getenv("NOTION_API_KEY"))
+notion = Client(auth=os.getenv("NOTION_API_KEY"), notion_version="2022-06-28")
 
 FIRMS_DB_ID = os.getenv("FIRMS_DB_ID")
 EQUITY_DB_ID = os.getenv("EQUITY_DB_ID")
@@ -16,9 +16,10 @@ def get_or_create_firm(firm_name, firm_type):
         return None
 
     # Search
-    response = notion.databases.query(
-        database_id=FIRMS_DB_ID,
-        filter={"property": "Firm Name", "title": {"equals": firm_name}},
+    response = notion.request(
+        path=f"databases/{FIRMS_DB_ID}/query",
+        method="POST",
+        body={"filter": {"property": "Firm Name", "title": {"equals": firm_name}}},
     )
 
     if response["results"]:
@@ -47,11 +48,14 @@ def push_deals_to_notion():
         print(f"Pushing deal: {deal['summary'][:50]}...")
 
         # Idempotency Check (Article ID)
-        existing = notion.databases.query(
-            database_id=EQUITY_DB_ID,
-            filter={
-                "property": "Article ID",
-                "rich_text": {"equals": deal["article_id"]},
+        existing = notion.request(
+            path=f"databases/{EQUITY_DB_ID}/query",
+            method="POST",
+            body={
+                "filter": {
+                    "property": "Article ID",
+                    "rich_text": {"equals": deal["article_id"]},
+                }
             },
         )
         if existing["results"]:
@@ -65,7 +69,7 @@ def push_deals_to_notion():
         developer_id = get_or_create_firm(deal.get("developer"), "Developer")
 
         props = {
-            "Deal Headline": {
+            "Transaction Summary": {
                 "title": [
                     {
                         "text": {
@@ -73,9 +77,6 @@ def push_deals_to_notion():
                         }
                     }
                 ]
-            },
-            "Transaction Summary": {
-                "rich_text": [{"text": {"content": deal.get("summary", "")}}]
             },
             "Structure": {"select": {"name": deal.get("structure", "Other")}},
             "Market": {"select": {"name": deal.get("market", "Unknown")}},
