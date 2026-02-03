@@ -20,8 +20,10 @@ class Database:
         
         self.db_path = db_path
         
-        # Ensure data directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        # Ensure data directory exists (if path includes a directory)
+        db_dir = os.path.dirname(db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         
         self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row  # Enable column access by name

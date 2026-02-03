@@ -110,15 +110,25 @@ def main():
             if len(sys.argv) < 3:
                 print("Error: Please specify search keyword")
                 sys.exit(1)
-            keyword = sys.argv[2].lower()
-            all_deals = db.get_all_deals()
-            matching_deals = [
-                d for d in all_deals
-                if keyword in d.get('title', '').lower()
-                or keyword in d.get('summary', '').lower()
-                or keyword in d.get('equity_partner', '').lower()
-                or keyword in d.get('developer', '').lower()
-            ]
+            keyword = sys.argv[2]
+            
+            # Use SQL LIKE queries for better performance with large datasets
+            cursor = db.conn.cursor()
+            search_pattern = f"%{keyword}%"
+            cursor.execute(
+                """
+                SELECT * FROM deals 
+                WHERE title LIKE ? 
+                   OR summary LIKE ? 
+                   OR equity_partner LIKE ? 
+                   OR developer LIKE ?
+                ORDER BY date_scraped DESC
+                """,
+                (search_pattern, search_pattern, search_pattern, search_pattern)
+            )
+            rows = cursor.fetchall()
+            matching_deals = [dict(row) for row in rows]
+            
             print(f"Found {len(matching_deals)} deals matching '{keyword}':")
             print_deals(matching_deals, limit=20)
         
