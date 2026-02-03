@@ -1,0 +1,1 @@
+Commercial Real Estate deal intelligence platform that automatically tracks equity financing transactions. Scrapes CRE news sources (The Real Deal, The Promote), extracts equity partner and developer relationships using AI, and captures meeting transcripts via Fireflies.ai. All deal data flows into structured Notion databases for pipeline management and market analysis.
