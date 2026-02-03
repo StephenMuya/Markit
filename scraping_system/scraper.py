@@ -1,12 +1,19 @@
 import asyncio
 from playwright.async_api import async_playwright
 import json
+import os
 from datetime import datetime
 
 
 class CREScraper:
     def __init__(self, headless=True):
         self.headless = headless
+        # Get max articles from environment variable, default to None (unlimited)
+        max_articles_str = os.getenv("MAX_ARTICLES_PER_SOURCE", "")
+        if max_articles_str and max_articles_str.isdigit():
+            self.max_articles_per_source = int(max_articles_str)
+        else:
+            self.max_articles_per_source = None  # Unlimited
 
     async def scrape_the_real_deal(self):
         print("Scraping The Real Deal...")
@@ -34,7 +41,8 @@ class CREScraper:
             print(f"Scanning {len(all_links)} links...")
 
             for link in all_links:
-                if len(articles) >= 10:
+                # Check if we've reached the limit (if set)
+                if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
                     break
 
                 try:
@@ -129,8 +137,12 @@ class CREScraper:
                     "a[href*='/cre-news/']"
                 ).all()  # Guessing URL structure
 
+                # Limit links if max_articles_per_source is set
+                if self.max_articles_per_source:
+                    links = links[:self.max_articles_per_source]
+
                 seen_urls = set()
-                for link in links[:10]:
+                for link in links:
                     url = await link.get_attribute("href")
                     if url and url not in seen_urls:
                         # Ensure absolute URL
@@ -168,15 +180,808 @@ class CREScraper:
             await browser.close()
         return articles
 
+    async def scrape_bisnow(self):
+        """Scrape Bisnow commercial real estate news."""
+        print("Scraping Bisnow...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.bisnow.com")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                # Scroll to load more content
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.bisnow.com" + url
+
+                        # Bisnow articles typically have /news/ or date patterns
+                        is_article = (
+                            ("/news/" in url)
+                            or ("/202" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Bisnow",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                # Get content for each article
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on Bisnow: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_globest(self):
+        """Scrape GlobeSt.com commercial real estate news."""
+        print("Scraping GlobeSt.com...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.globest.com")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.globest.com" + url
+
+                        # GlobeSt articles often have /news/ or /202
+                        is_article = (
+                            ("/news/" in url)
+                            or ("/202" in url)
+                            or ("/articles/" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "GlobeSt.com",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-body", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on GlobeSt: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_commercial_observer(self):
+        """Scrape Commercial Observer news."""
+        print("Scraping Commercial Observer...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://commercialobserver.com")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://commercialobserver.com" + url
+
+                        # Commercial Observer article patterns
+                        is_article = (
+                            ("/202" in url)
+                            or ("/finance/" in url)
+                            or ("/real-estate/" in url)
+                        )
+
+                        if is_article and url not in seen_urls and "commercialobserver.com" in url:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Commercial Observer",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on Commercial Observer: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_cre_direct(self):
+        """Scrape CRE Direct (Commercial Real Estate Direct) news."""
+        print("Scraping CRE Direct...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.crenews.com")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.crenews.com" + url
+
+                        # CRE Direct article patterns
+                        is_article = (
+                            ("/articles/" in url)
+                            or ("/news/" in url)
+                            or ("/202" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "CRE Direct",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on CRE Direct: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_connect_cre(self):
+        """Scrape Connect CRE news."""
+        print("Scraping Connect CRE...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.connect.media")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.connect.media" + url
+
+                        # Connect CRE article patterns
+                        is_article = (
+                            ("/news/" in url)
+                            or ("/202" in url)
+                            or ("/articles/" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Connect CRE",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on Connect CRE: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_propmodo(self):
+        """Scrape Propmodo commercial real estate technology news."""
+        print("Scraping Propmodo...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.propmodo.com")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.propmodo.com" + url
+
+                        # Propmodo article patterns
+                        is_article = (
+                            ("/202" in url)
+                            or ("/news/" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Propmodo",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".post-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on Propmodo: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_naiop(self):
+        """Scrape NAIOP (Commercial Real Estate Development Association) news."""
+        print("Scraping NAIOP...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.naiop.org")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.naiop.org" + url
+
+                        # NAIOP article patterns
+                        is_article = (
+                            ("/news/" in url)
+                            or ("/articles/" in url)
+                            or ("/magazine/" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "NAIOP",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on NAIOP: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_uli(self):
+        """Scrape Urban Land Institute (ULI) news."""
+        print("Scraping Urban Land Institute...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://urbanland.uli.org")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://urbanland.uli.org" + url
+
+                        # ULI article patterns
+                        is_article = (
+                            ("/articles/" in url)
+                            or ("/202" in url)
+                            or ("/news/" in url)
+                        )
+
+                        if is_article and url not in seen_urls:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Urban Land Institute",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".article-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on ULI: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_yardi_matrix(self):
+        """Scrape Yardi Matrix market intelligence and research."""
+        print("Scraping Yardi Matrix...")
+        articles = []
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=self.headless)
+            page = await browser.new_page()
+            await page.goto("https://www.yardimatrix.com/publications")
+
+            try:
+                await page.wait_for_selector("a", timeout=10000)
+                
+                for _ in range(3):
+                    await page.evaluate("window.scrollBy(0, 1000)")
+                    await asyncio.sleep(1)
+
+                all_links = await page.locator("a").all()
+                seen_urls = set()
+                print(f"Scanning {len(all_links)} links...")
+
+                for link in all_links:
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+
+                    try:
+                        url = await link.get_attribute("href")
+                        if not url:
+                            continue
+
+                        if url.startswith("/"):
+                            url = "https://www.yardimatrix.com" + url
+
+                        # Yardi Matrix publication patterns
+                        is_article = (
+                            ("/publications/" in url)
+                            or ("/research/" in url)
+                            or ("/202" in url)
+                        )
+
+                        if is_article and url not in seen_urls and "yardimatrix.com" in url:
+                            seen_urls.add(url)
+                            title = await link.inner_text()
+
+                            if len(title) > 10:
+                                print(f"Found: {title[:30]}... ({url})")
+                                articles.append(
+                                    {
+                                        "source": "Yardi Matrix",
+                                        "url": url,
+                                        "title": title.strip(),
+                                        "date_scraped": datetime.now().isoformat(),
+                                    }
+                                )
+                    except Exception:
+                        continue
+
+                for article in articles:
+                    try:
+                        print(f"Scraping content: {article['title']}...")
+                        await page.goto(article["url"], timeout=60000)
+
+                        content = ""
+                        selectors = ["article", ".publication-content", ".entry-content", "main", "body"]
+
+                        for selector in selectors:
+                            try:
+                                if await page.locator(selector).count() > 0:
+                                    content = await page.locator(selector).first.inner_text()
+                                    if len(content) > 500:
+                                        break
+                            except Exception:
+                                continue
+
+                        article["content"] = content[:15000]
+
+                    except Exception as e:
+                        print(f"Error scraping {article['url']}: {e}")
+
+            except Exception as e:
+                print(f"Error on Yardi Matrix: {e}")
+
+            await browser.close()
+        return articles
+
+    async def scrape_all_sources(self):
+        """Scrape all configured sources and return aggregated results."""
+        print("=== Starting scraping of all sources ===\n")
+        
+        all_articles = []
+        
+        # Scrape all sources
+        sources = [
+            self.scrape_the_real_deal(),
+            self.scrape_bisnow(),
+            self.scrape_globest(),
+            self.scrape_commercial_observer(),
+            self.scrape_cre_direct(),
+            self.scrape_connect_cre(),
+            self.scrape_propmodo(),
+            self.scrape_naiop(),
+            self.scrape_uli(),
+            self.scrape_yardi_matrix(),
+        ]
+        
+        # Execute all scrapers concurrently
+        results = await asyncio.gather(*sources, return_exceptions=True)
+        
+        # Aggregate results
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                print(f"Error in scraper {i}: {result}")
+            else:
+                all_articles.extend(result)
+        
+        print(f"\n=== Scraping complete: {len(all_articles)} total articles ===")
+        return all_articles
+
 
 async def main():
     scraper = CREScraper(headless=True)
-    trd_articles = await scraper.scrape_the_real_deal()
-    print(f"Found {len(trd_articles)} articles from TRD.")
+    
+    # Scrape all sources
+    all_articles = await scraper.scrape_all_sources()
+    print(f"Total articles scraped: {len(all_articles)}")
 
     # Save to JSON for next step (Extractor)
     with open("scraped_articles.json", "w") as f:
-        json.dump(trd_articles, f, indent=2)
+        json.dump(all_articles, f, indent=2)
+    
+    print(f"Saved {len(all_articles)} articles to scraped_articles.json")
 
 
 if __name__ == "__main__":
