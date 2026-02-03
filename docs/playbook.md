@@ -68,17 +68,17 @@ The scraping system now uses **SQLite** instead of Notion for data storage, prov
 ### Operation
 Run the complete scraping pipeline:
 ```bash
-# Scrape articles from all 10 sources
+# Option 1: Run all steps at once (Recommended)
+./run.sh      # Linux/Mac
+run.bat       # Windows
+
+# Option 2: Run steps individually
 python scraping_system/scraper.py
-
-# Extract deals using Gemini AI
 python scraping_system/extractor.py
-
-# Save deals to SQLite database
 python scraping_system/integration.py
 ```
 
-*Tip: Combine these into a single `run.sh` or `run.bat` script for automation.*
+*Tip: The run scripts handle the complete pipeline and show statistics at the end.*
 
 ### Database Schema
 The SQLite database contains two main tables:
@@ -136,6 +136,26 @@ FROM deals
 WHERE confidence > 0.8 
 ORDER BY date_scraped DESC 
 LIMIT 20;
+```
+
+**Using the built-in query utility:**
+```bash
+cd scraping_system
+
+# Show statistics
+python query_db.py stats
+
+# List recent deals  
+python query_db.py recent 10
+
+# List all firms
+python query_db.py firms
+
+# Search for deals containing keyword
+python query_db.py search "Blackstone"
+
+# List deals from specific source
+python query_db.py source "The Real Deal"
 ```
 
 Or use Python:
