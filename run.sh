@@ -32,12 +32,12 @@ fi
 echo ""
 
 # Check if articles were scraped
-if [ ! -f "$SCRIPT_DIR/scraped_articles.json" ]; then
+if [ ! -f "scraped_articles.json" ]; then
     echo "Error: No scraped_articles.json file created"
     exit 1
 fi
 
-ARTICLE_COUNT=$(python -c "import json; data=json.load(open('$SCRIPT_DIR/scraped_articles.json')); print(len(data))")
+ARTICLE_COUNT=$(python -c "import json; data=json.load(open('scraped_articles.json')); print(len(data))")
 echo "Scraped $ARTICLE_COUNT articles"
 echo ""
 
@@ -52,12 +52,12 @@ fi
 echo ""
 
 # Check if deals were extracted
-if [ ! -f "$SCRIPT_DIR/extracted_deals.json" ]; then
+if [ ! -f "extracted_deals.json" ]; then
     echo "Error: No extracted_deals.json file created"
     exit 1
 fi
 
-DEAL_COUNT=$(python -c "import json; data=json.load(open('$SCRIPT_DIR/extracted_deals.json')); print(len(data))")
+DEAL_COUNT=$(python -c "import json; data=json.load(open('extracted_deals.json')); print(len(data))")
 echo "Extracted $DEAL_COUNT deals"
 echo ""
 

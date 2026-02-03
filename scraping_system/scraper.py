@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 def has_year_in_url(url: str) -> bool:
-    """Check if URL contains a year pattern (2020-2049)."""
+    """Check if URL contains a year pattern from 2020 to 2049 (inclusive)."""
     return any(f"/20{year}" in url for year in range(20, 50))
 
 

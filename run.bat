@@ -2,6 +2,10 @@
 REM run.bat - Complete NotionFlow scraping pipeline for Windows
 REM This script runs the entire scraping, extraction, and integration pipeline
 
+REM Get the directory where this script is located
+SET SCRIPT_DIR=%~dp0
+cd /d "%SCRIPT_DIR%"
+
 echo ======================================
 echo NotionFlow Scraping Pipeline
 echo ======================================
@@ -17,13 +21,19 @@ if "%GEMINI_API_KEY%"=="" (
 REM Step 1: Scrape articles
 echo Step 1: Scraping articles from all sources...
 echo --------------------------------------
-cd scraping_system
+cd /d "%SCRIPT_DIR%scraping_system"
 python scraper.py
 if errorlevel 1 (
     echo Error: Scraping failed
     exit /b 1
 )
 echo.
+
+REM Check if articles were scraped
+if not exist "scraped_articles.json" (
+    echo Error: No scraped_articles.json file created
+    exit /b 1
+)
 
 REM Step 2: Extract deals using Gemini
 echo Step 2: Extracting deals using Gemini AI...
@@ -34,6 +44,12 @@ if errorlevel 1 (
     exit /b 1
 )
 echo.
+
+REM Check if deals were extracted
+if not exist "extracted_deals.json" (
+    echo Error: No extracted_deals.json file created
+    exit /b 1
+)
 
 REM Step 3: Save to SQLite database
 echo Step 3: Saving deals to SQLite database...
