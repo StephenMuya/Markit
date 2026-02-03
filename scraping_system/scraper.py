@@ -3,6 +3,7 @@ from playwright.async_api import async_playwright
 import json
 import os
 from datetime import datetime
+from urllib.parse import urlparse
 
 
 def has_year_in_url(url: str) -> bool:
@@ -405,7 +406,14 @@ class CREScraper:
                             or ("/real-estate/" in url)
                         )
 
-                        if is_article and url not in seen_urls and "commercialobserver.com" in url:
+                        # Ensure URL is from commercialobserver.com domain (proper URL validation)
+                        try:
+                            parsed = urlparse(url)
+                            is_valid_domain = parsed.netloc == "commercialobserver.com" or parsed.netloc == "www.commercialobserver.com"
+                        except:
+                            is_valid_domain = False
+                        
+                        if is_article and url not in seen_urls and is_valid_domain:
                             seen_urls.add(url)
                             title = await link.inner_text()
 
@@ -908,7 +916,14 @@ class CREScraper:
                             or has_year_in_url(url)
                         )
 
-                        if is_article and url not in seen_urls and "yardimatrix.com" in url:
+                        # Ensure URL is from yardimatrix.com domain (proper URL validation)
+                        try:
+                            parsed = urlparse(url)
+                            is_valid_domain = parsed.netloc == "www.yardimatrix.com" or parsed.netloc == "yardimatrix.com"
+                        except:
+                            is_valid_domain = False
+                        
+                        if is_article and url not in seen_urls and is_valid_domain:
                             seen_urls.add(url)
                             title = await link.inner_text()
 
