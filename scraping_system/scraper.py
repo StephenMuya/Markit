@@ -6,8 +6,20 @@ from datetime import datetime
 
 
 def has_year_in_url(url: str) -> bool:
-    """Check if URL contains a year pattern from 2020 to 2049 (inclusive)."""
-    return any(f"/20{year}" in url for year in range(20, 50))
+    """Check if URL contains a year pattern from 2020 to current year + 1.
+    
+    This prevents matching URLs with far-future years that don't exist yet.
+    """
+    from datetime import datetime
+    current_year = datetime.now().year
+    # Check from 2020 to current year + 1 (to allow for articles published early in next year)
+    start_year = 2020
+    end_year = current_year + 2  # Allow some buffer for early publishing
+    
+    for year in range(start_year, end_year):
+        if f"/{year}" in url:
+            return True
+    return False
 
 
 class CREScraper:
@@ -140,14 +152,14 @@ class CREScraper:
                 # Broad scraping of links that look like articles
                 links = await page.locator(
                     "a[href*='/cre-news/']"
-                ).all()  # Guessing URL structure
-
-                # Limit links if max_articles_per_source is set
-                if self.max_articles_per_source:
-                    links = links[:self.max_articles_per_source]
+                ).all()  # Get all article links
 
                 seen_urls = set()
                 for link in links:
+                    # Check limit after filtering valid articles
+                    if self.max_articles_per_source and len(articles) >= self.max_articles_per_source:
+                        break
+                        
                     url = await link.get_attribute("href")
                     if url and url not in seen_urls:
                         # Ensure absolute URL
