@@ -3,7 +3,12 @@ import os
 import time
 import google.generativeai as genai
 from dotenv import load_dotenv
-from database import generate_article_id
+
+# Handle imports whether run as script or module
+try:
+    from .database import generate_article_id
+except ImportError:
+    from database import generate_article_id
 
 load_dotenv()
 

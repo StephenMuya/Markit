@@ -1,7 +1,12 @@
 import json
 import os
 from dotenv import load_dotenv
-from database import Database
+
+# Handle imports whether run as script or module
+try:
+    from .database import Database
+except ImportError:
+    from database import Database
 
 load_dotenv()
 
