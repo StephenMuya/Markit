@@ -5,6 +5,11 @@ import os
 from datetime import datetime
 
 
+def has_year_in_url(url: str) -> bool:
+    """Check if URL contains a year pattern (2020-2049)."""
+    return any(f"/20{year}" in url for year in range(20, 50))
+
+
 class CREScraper:
     def __init__(self, headless=True):
         self.headless = headless
@@ -57,7 +62,7 @@ class CREScraper:
                     # Filter for article-like URLs (usually contain date or specific path)
                     # TRD structure: /national/2026/01/30/... or /new-york/2025/...
                     is_article = (
-                        ("/202" in url)
+                        has_year_in_url(url)
                         or ("/deal-sheet/" in url)
                         or ("/trd-am/" in url)
                     )
@@ -216,7 +221,7 @@ class CREScraper:
                         # Bisnow articles typically have /news/ or date patterns
                         is_article = (
                             ("/news/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                         )
 
                         if is_article and url not in seen_urls:
@@ -297,10 +302,10 @@ class CREScraper:
                         if url.startswith("/"):
                             url = "https://www.globest.com" + url
 
-                        # GlobeSt articles often have /news/ or /202
+                        # GlobeSt articles often have /news/ or year patterns
                         is_article = (
                             ("/news/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                             or ("/articles/" in url)
                         )
 
@@ -383,7 +388,7 @@ class CREScraper:
 
                         # Commercial Observer article patterns
                         is_article = (
-                            ("/202" in url)
+                            has_year_in_url(url)
                             or ("/finance/" in url)
                             or ("/real-estate/" in url)
                         )
@@ -469,7 +474,7 @@ class CREScraper:
                         is_article = (
                             ("/articles/" in url)
                             or ("/news/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                         )
 
                         if is_article and url not in seen_urls:
@@ -552,7 +557,7 @@ class CREScraper:
                         # Connect CRE article patterns
                         is_article = (
                             ("/news/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                             or ("/articles/" in url)
                         )
 
@@ -635,7 +640,7 @@ class CREScraper:
 
                         # Propmodo article patterns
                         is_article = (
-                            ("/202" in url)
+                            has_year_in_url(url)
                             or ("/news/" in url)
                         )
 
@@ -803,7 +808,7 @@ class CREScraper:
                         # ULI article patterns
                         is_article = (
                             ("/articles/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                             or ("/news/" in url)
                         )
 
@@ -888,7 +893,7 @@ class CREScraper:
                         is_article = (
                             ("/publications/" in url)
                             or ("/research/" in url)
-                            or ("/202" in url)
+                            or has_year_in_url(url)
                         )
 
                         if is_article and url not in seen_urls and "yardimatrix.com" in url:

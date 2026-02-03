@@ -1,6 +1,18 @@
+# Web scraping
 playwright
 beautifulsoup4
+
+# AI extraction
 google-generativeai
+
+# Configuration
 python-dotenv
+
+# Testing
 pytest
+
+# Legacy (optional - only needed for Notion integration)
 notion-client
+
+# Note: SQLite is built into Python 3, no additional package needed
+

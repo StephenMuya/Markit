@@ -218,10 +218,13 @@ class Database:
         """
         cursor = self.conn.cursor()
         query = "SELECT * FROM deals ORDER BY date_scraped DESC"
-        if limit:
-            query += f" LIMIT {limit}"
         
-        cursor.execute(query)
+        if limit:
+            query += " LIMIT ?"
+            cursor.execute(query, (limit,))
+        else:
+            cursor.execute(query)
+        
         rows = cursor.fetchall()
         
         return [dict(row) for row in rows]
