@@ -410,7 +410,7 @@ class CREScraper:
                         try:
                             parsed = urlparse(url)
                             is_valid_domain = parsed.netloc == "commercialobserver.com" or parsed.netloc == "www.commercialobserver.com"
-                        except:
+                        except Exception:
                             is_valid_domain = False
                         
                         if is_article and url not in seen_urls and is_valid_domain:
@@ -920,7 +920,7 @@ class CREScraper:
                         try:
                             parsed = urlparse(url)
                             is_valid_domain = parsed.netloc == "www.yardimatrix.com" or parsed.netloc == "yardimatrix.com"
-                        except:
+                        except Exception:
                             is_valid_domain = False
                         
                         if is_article and url not in seen_urls and is_valid_domain:
