@@ -21,6 +21,7 @@ class Database:
         self.db_path = db_path
         
         # Ensure data directory exists (if path includes a directory)
+        # Handle case where db_path is just a filename without directory
         db_dir = os.path.dirname(db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
