@@ -13,8 +13,8 @@ services:
     name: notionflow-backend
     env: java
     plan: free
-    buildCommand: cd backend && mvn clean install
-    startCommand: cd backend && java -jar target/notionflow-backend-1.0.0.jar
+    buildCommand: cd backend && ./gradlew build -x test
+    startCommand: cd backend && java -jar build/libs/notionflow-backend-1.0.0.jar
     envVars:
       - key: DB_HOST
         fromDatabase:

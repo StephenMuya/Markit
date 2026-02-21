@@ -56,13 +56,13 @@ CREATE DATABASE notionflow;
 cd backend
 
 # Build the project
-mvn clean install
+./gradlew build
 
 # Run the application
-mvn spring-boot:run
+./gradlew bootRun
 
 # Or run the JAR directly
-java -jar target/notionflow-backend-1.0.0.jar
+java -jar build/libs/notionflow-backend-1.0.0.jar
 ```
 
 The API will be available at `http://localhost:8080`
@@ -278,13 +278,13 @@ NotionFlow/
 cd backend
 
 # Run tests
-mvn test
+./gradlew test
 
 # Run with dev profile
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+./gradlew bootRun --args='--spring.profiles.active=dev'
 
 # Package for production
-mvn clean package
+./gradlew build
 ```
 
 ### Frontend/API Testing

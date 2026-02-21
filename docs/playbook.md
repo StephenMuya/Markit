@@ -91,13 +91,13 @@ CREATE DATABASE notionflow;
 cd backend
 
 # Build
-mvn clean install
+./gradlew build
 
 # Run
-mvn spring-boot:run
+./gradlew bootRun
 
 # Or with JAR
-java -jar target/notionflow-backend-1.0.0.jar
+java -jar build/libs/notionflow-backend-1.0.0.jar
 ```
 
 ### Python Setup
@@ -320,10 +320,10 @@ psql -U postgres notionflow < backup.sql
 cd backend
 
 # Run tests
-mvn test
+./gradlew test
 
 # Run with dev profile
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+./gradlew bootRun --args='--spring.profiles.active=dev'
 ```
 
 ### Adding New Scrapers

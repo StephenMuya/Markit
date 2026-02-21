@@ -2,11 +2,13 @@
 __pycache__/
 *.pyc
 
-# Java
-backend/target/
-backend/.mvn/
+# Java & Gradle
+backend/build/
+backend/.gradle/
+backend/out/
 *.class
 *.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 
