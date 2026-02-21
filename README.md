@@ -94,11 +94,13 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=notionflow
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=your_secure_password_here
 
 # Maximum articles to scrape per source (optional)
 MAX_ARTICLES_PER_SOURCE=
 ```
+
+**⚠️ Security Note:** Never commit real passwords to version control. Always use strong, unique passwords and set them via environment variables.
 
 ### Running the Pipeline
 

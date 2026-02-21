@@ -15,7 +15,7 @@ class Database:
         Args:
             connection_string: PostgreSQL connection string. If not provided,
                              builds from environment variables (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
-                             with defaults: localhost:5432, database=notionflow, user=postgres, password=postgres
+                             Note: DB_PASSWORD must be set via environment variable for security
         """
         if connection_string is None:
             # Build connection string from environment variables
@@ -23,7 +23,14 @@ class Database:
             db_port = os.getenv("DB_PORT", "5432")
             db_name = os.getenv("DB_NAME", "notionflow")
             db_user = os.getenv("DB_USER", "postgres")
-            db_password = os.getenv("DB_PASSWORD", "postgres")
+            db_password = os.getenv("DB_PASSWORD")
+            
+            if not db_password:
+                raise ValueError(
+                    "DB_PASSWORD environment variable must be set. "
+                    "Never use hardcoded passwords in your code."
+                )
+            
             connection_string = f"host={db_host} port={db_port} dbname={db_name} user={db_user} password={db_password}"
         
         self.connection_string = connection_string

@@ -43,11 +43,13 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=notionflow
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=your_secure_password_here
 
 # Optional: Limit articles per source
 MAX_ARTICLES_PER_SOURCE=100
 ```
+
+**⚠️ Security Note:** Always use strong, unique passwords and never commit real credentials to version control. The DB_PASSWORD environment variable is required and must be set.
 
 ## 4. Setup Instructions
 
