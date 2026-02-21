@@ -182,21 +182,21 @@ Stores scraped CRE deals:
 ### Using PostgreSQL
 
 ```sql
-# View recent deals
+-- View recent deals
 SELECT * FROM deals ORDER BY date_scraped DESC LIMIT 10;
 
-# Count by source
+-- Count by source
 SELECT source_name, COUNT(*) 
 FROM deals 
 GROUP BY source_name;
 
-# High confidence deals
+-- High confidence deals
 SELECT title, equity_partner, developer, confidence 
 FROM deals 
 WHERE confidence > 0.8 
 ORDER BY confidence DESC;
 
-# Deals by firm
+-- Deals by firm
 SELECT d.title, d.market, d.structure 
 FROM deals d
 JOIN firms f ON d.equity_partner_id = f.id

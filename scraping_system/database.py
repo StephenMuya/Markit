@@ -13,8 +13,9 @@ class Database:
         """Initialize database connection.
         
         Args:
-            connection_string: PostgreSQL connection string. Defaults to env vars or
-                             postgresql://postgres:postgres@localhost:5432/notionflow
+            connection_string: PostgreSQL connection string. If not provided,
+                             builds from environment variables (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+                             with defaults: localhost:5432, database=notionflow, user=postgres, password=postgres
         """
         if connection_string is None:
             # Build connection string from environment variables
