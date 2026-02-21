@@ -5,6 +5,10 @@ beautifulsoup4
 # AI extraction
 google-generativeai
 
+# Audio processing
+openai>=1.0.0
+pydantic>=2.0.0
+
 # Configuration
 python-dotenv
 
