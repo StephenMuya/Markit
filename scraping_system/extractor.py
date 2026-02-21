@@ -1,20 +1,19 @@
 import json
 import os
-import hashlib
 import time
 import google.generativeai as genai
 from dotenv import load_dotenv
+
+# Handle imports whether run as script or module
+try:
+    from .database import generate_article_id
+except ImportError:
+    from database import generate_article_id
 
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.0-flash")
-
-
-def generate_article_id(url, date_scraped):
-    """Generates a unique ID for the article to prevent duplicates."""
-    raw_string = f"{url}-{date_scraped}"
-    return hashlib.md5(raw_string.encode()).hexdigest()
 
 
 def extract_deal_info(article_text):

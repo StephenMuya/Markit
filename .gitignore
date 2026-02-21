@@ -1,4 +1,23 @@
 .env
-node_modules/
 __pycache__/
 *.pyc
+
+# Java & Gradle
+backend/build/
+backend/.gradle/
+backend/out/
+*.class
+*.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Build artifacts
+/dist/
+/build/
+
