@@ -1,172 +1,96 @@
 # NotionFlow
 
-Automated scraping and deal extraction system for Commercial Real Estate (CRE) news sources with Java Spring Boot backend and PostgreSQL database.
-
-## Overview
-
-NotionFlow is a hybrid Python/Java system that:
-1. **Scrapes** articles from 10 major CRE news sources (Python)
-2. **Extracts** deal information using Google Gemini AI (Python)
-3. **Stores** deals in PostgreSQL database via Java Spring Boot REST API
-4. **Provides** REST API for querying deals, firms, and statistics (Java)
+NotionFlow is an automated data pipeline for Commercial Real Estate (CRE) deal intelligence. It scrapes articles from ten major industry news sources, extracts structured deal information using the Google Gemini large language model, and persists the results in a PostgreSQL database exposed through a Spring Boot REST API. The scraping layer is written in Python (Playwright + BeautifulSoup); the backend is Java 17 on Spring Boot 3.2.
 
 ## Architecture
 
-- **Backend**: Java Spring Boot 3.2 + PostgreSQL
-- **Scraping**: Python with Playwright
-- **AI Extraction**: Google Gemini API
-- **Database**: PostgreSQL 12+
+The system is split into two runtime components that share a single PostgreSQL instance.
 
-## Features
+The **Python scraping pipeline** (`scraping_system/`) runs in three sequential stages. `scraper.py` crawls ten CRE news sites using Playwright for JavaScript-rendered pages and BeautifulSoup for static HTML parsing. `extractor.py` sends each scraped article to the Google Gemini API with a structured prompt and receives back deal-level fields such as equity partner, developer, deal structure, market, and a confidence score. `integration.py` writes the extracted records into PostgreSQL via `psycopg2`, performing article-level deduplication on insert so the pipeline is idempotent.
 
-- ✅ **10 CRE News Sources**: The Real Deal, Bisnow, GlobeSt, Commercial Observer, CRE Direct, Connect CRE, Propmodo, NAIOP, ULI, Yardi Matrix
-- ✅ **PostgreSQL Database**: Production-grade RDBMS with proper foreign keys and indexing
-- ✅ **Java Spring Boot API**: RESTful API for all database operations
-- ✅ **AI-Powered Extraction**: Google Gemini AI extracts structured deal data
-- ✅ **Automatic Deduplication**: Article-level idempotency prevents duplicates
-- ✅ **Firm Management**: Automatic firm tracking and relationship management
-- ✅ **Configurable Limits**: Control articles per source via environment variables
+The **Java Spring Boot backend** (`backend/`) exposes a RESTful API over the same database. It uses Spring Data JPA with Hibernate for object-relational mapping, validation via `spring-boot-starter-validation`, and Lombok to reduce entity boilerplate. The API supports querying deals by source or keyword, listing tracked firms, and retrieving aggregate statistics. CORS is enabled for local development.
 
-## Quick Start
+Both components read connection credentials and runtime settings from a shared `.env` file. A `docker-compose.yml` is included for running PostgreSQL and the backend together, and a `render.yaml` defines a Render deployment with a managed database, the Spring Boot web service, and a daily cron job for the scraper.
 
-### Prerequisites
+## Prerequisites
 
-- **Java 17+** and Maven 3.8+
-- **Python 3.8+**
-- **PostgreSQL 12+**
-- **Google Gemini API key** ([Get one here](https://makersuite.google.com/app/apikey))
+- Java 17+ and Gradle (wrapper included)
+- Python 3.8+
+- PostgreSQL 12+
+- A [Google Gemini API key](https://makersuite.google.com/app/apikey)
 
-### Installation
+## Installation
 
-#### 1. Database Setup
+### Database
 
 ```bash
-# Create PostgreSQL database
 createdb notionflow
-
-# Or use psql
-psql -U postgres
-CREATE DATABASE notionflow;
-\q
+# or: psql -U postgres -c "CREATE DATABASE notionflow;"
 ```
 
-#### 2. Backend Setup (Java Spring Boot)
+### Backend
 
 ```bash
 cd backend
-
-# Build the project
 ./gradlew build
-
-# Run the application
-./gradlew bootRun
-
-# Or run the JAR directly
-java -jar build/libs/notionflow-backend-1.0.0.jar
+./gradlew bootRun          # starts on http://localhost:8080
 ```
 
-The API will be available at `http://localhost:8080`
-
-#### 3. Python Scraper Setup
+### Python scraper
 
 ```bash
-# Install Python dependencies
 pip install -r requirements.txt
-
-# Install Playwright browsers
 python -m playwright install
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env and add your secrets (GEMINI_API_KEY, DB_PASSWORD, etc.)
+cp .env.example .env       # then fill in GEMINI_API_KEY and DB_PASSWORD
 ```
 
-### Configuration
+## Configuration
 
-**All configuration is managed through the `.env` file.** This file contains:
-- API keys and secrets
-- Database credentials
-- Java backend settings
-- Python scraper settings
+All runtime configuration lives in the `.env` file at the repository root. Copy `.env.example` and set at minimum:
 
-Copy the example file and edit with your values:
+| Variable | Required | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | yes | Google Gemini API key for deal extraction |
+| `DB_PASSWORD` | yes | PostgreSQL password |
+| `SERVER_PORT` | no | Spring Boot port (default `8080`) |
+| `MAX_ARTICLES_PER_SOURCE` | no | Cap on articles scraped per source (default unlimited) |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | no | Hibernate DDL strategy (default `update`) |
+| `LOGGING_LEVEL_ROOT` | no | Root log level (default `INFO`) |
 
-```bash
-cp .env.example .env
-nano .env  # or use your preferred editor
-```
+The `.env` file is listed in `.gitignore` and must not be committed.
 
-**Required variables:**
-- `GEMINI_API_KEY` - Your Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
-- `DB_PASSWORD` - Your PostgreSQL database password (use a strong password)
-
-**Optional variables:**
-- `SERVER_PORT` - Java backend port (default: 8080)
-- `MAX_ARTICLES_PER_SOURCE` - Scraping limit per source (default: unlimited)
-- `SPRING_JPA_HIBERNATE_DDL_AUTO` - Database schema management (default: update)
-- `LOGGING_LEVEL_ROOT` - Application logging level (default: INFO)
-
-See `.env.example` for complete documentation of all available configuration options.
-
-**⚠️ Security Note:** Never commit the `.env` file to version control. It's already in `.gitignore` to prevent accidental commits.
-
-### Running the Pipeline
-
-**Step-by-step execution:**
+## Running the Pipeline
 
 ```bash
 cd scraping_system
-
-# Step 1: Scrape articles from all 10 sources
-python scraper.py
-
-# Step 2: Extract deals using Gemini AI
-python extractor.py
-
-# Step 3: Save deals to PostgreSQL database
-python integration.py
+python scraper.py       # crawl all ten sources
+python extractor.py     # extract deals via Gemini
+python integration.py   # load into PostgreSQL
 ```
 
-## API Endpoints
+Each stage reads its predecessor's output from local JSON files and can be re-run safely; duplicate articles are skipped on insert.
 
-The Java Spring Boot backend provides the following REST endpoints:
+## REST API
 
-### Health Check
-```
-GET /api/health
-```
+All endpoints are served by the Spring Boot backend at the configured port.
 
-### Deals
-```
-GET  /api/deals              - Get all deals
-GET  /api/deals/source/{name} - Get deals by source
-GET  /api/deals/search?keyword={keyword} - Search deals
-POST /api/deals              - Create a new deal
-```
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/deals` | List all deals |
+| `GET` | `/api/deals/source/{name}` | Deals filtered by source |
+| `GET` | `/api/deals/search?keyword={kw}` | Full-text keyword search |
+| `POST` | `/api/deals` | Create a deal record |
+| `GET` | `/api/firms` | List tracked firms |
+| `GET` | `/api/stats` | Aggregate statistics |
 
-### Firms
-```
-GET  /api/firms              - Get all firms
-```
-
-### Statistics
-```
-GET  /api/stats              - Get database statistics
-```
-
-### Example API Usage
+Example requests:
 
 ```bash
-# Get all deals
 curl http://localhost:8080/api/deals
-
-# Search for deals
 curl "http://localhost:8080/api/deals/search?keyword=Blackstone"
-
-# Get statistics
 curl http://localhost:8080/api/stats
 
-# Create a new deal
 curl -X POST http://localhost:8080/api/deals \
   -H "Content-Type: application/json" \
   -d '{
@@ -186,7 +110,6 @@ curl -X POST http://localhost:8080/api/deals \
 
 ## Database Schema
 
-### Firms Table
 ```sql
 CREATE TABLE firms (
     id SERIAL PRIMARY KEY,
@@ -195,10 +118,7 @@ CREATE TABLE firms (
     website TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-### Deals Table
-```sql
 CREATE TABLE deals (
     id SERIAL PRIMARY KEY,
     article_id TEXT NOT NULL UNIQUE,
@@ -219,128 +139,71 @@ CREATE TABLE deals (
 );
 ```
 
-## Querying the Database
+The `deals` table enforces a unique constraint on `article_id` for deduplication. Foreign keys on `equity_partner_id` and `developer_id` reference the `firms` table so that firm entities can be tracked and queried independently.
 
-### Using psql
+## Data Sources
 
-```bash
-psql -U postgres -d notionflow
+The scraper targets the following CRE publications:
 
-# View all deals
-SELECT * FROM deals ORDER BY date_scraped DESC LIMIT 10;
+| Source | Domain | Focus |
+|---|---|---|
+| The Real Deal | therealdeal.com | National CRE news |
+| Bisnow | bisnow.com | Multi-market coverage |
+| GlobeSt.com | globest.com | News and analysis |
+| Commercial Observer | commercialobserver.com | Finance, tech, investment |
+| CRE Direct | crenews.com | CMBS, lending, capital markets |
+| Connect CRE | connect.media | Daily property-sector news |
+| Propmodo | propmodo.com | PropTech and innovation |
+| NAIOP | naiop.org | Development industry association |
+| Urban Land Institute | urbanland.uli.org | Land use and development |
+| Yardi Matrix | yardimatrix.com | Market intelligence |
 
-# Count deals by source
-SELECT source_name, COUNT(*) 
-FROM deals 
-GROUP BY source_name;
-
-# Find high-confidence deals
-SELECT title, equity_partner, developer, confidence 
-FROM deals 
-WHERE confidence > 0.8 
-ORDER BY confidence DESC;
-```
-
-### Using the REST API
-
-The Java backend provides a cleaner interface for querying data without direct database access.
-
-## Project Structure
+## Project Layout
 
 ```
 NotionFlow/
-├── backend/                      # Java Spring Boot backend
-│   ├── src/main/java/com/notionflow/
-│   │   ├── controller/          # REST controllers
-│   │   ├── service/             # Business logic
-│   │   ├── model/               # JPA entities
-│   │   ├── repository/          # Data access layer
-│   │   └── NotionFlowApplication.java
-│   ├── src/main/resources/
-│   │   └── application.properties
-│   └── pom.xml                  # Maven configuration
-├── scraping_system/             # Python scraping & extraction
-│   ├── scraper.py              # Web scraper for 10 sources
-│   ├── extractor.py            # AI-powered deal extraction
-│   ├── integration.py          # Database integration
-│   └── database.py             # PostgreSQL operations
-├── docs/                        # Documentation
-├── .env.example                 # Environment configuration template
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+  backend/
+    src/main/java/com/notionflow/
+      controller/       REST controllers
+      service/          Business logic
+      model/            JPA entities
+      repository/       Spring Data repositories
+      NotionFlowApplication.java
+    src/main/resources/
+      application.properties
+    build.gradle
+  scraping_system/
+    scraper.py          Playwright/BS4 crawler
+    extractor.py        Gemini-based deal extraction
+    integration.py      PostgreSQL loader
+    database.py         Low-level DB operations
+  audio_processing/     Optional audio transcription module (OpenAI Whisper + GPT-4o)
+  docs/                 Deployment and maintenance guides
+  docker-compose.yml    Local dev stack (Postgres + backend)
+  render.yaml           Render cloud deployment manifest
+  .env.example          Configuration template
+  requirements.txt      Python dependencies
 ```
 
 ## Development
 
-### Backend Development (Java)
-
 ```bash
 cd backend
-
-# Run tests
-./gradlew test
-
-# Run with dev profile
-./gradlew bootRun --args='--spring.profiles.active=dev'
-
-# Package for production
-./gradlew build
+./gradlew test                                         # run unit tests
+./gradlew bootRun --args='--spring.profiles.active=dev' # dev profile
+./gradlew build                                         # production JAR
 ```
 
-### Frontend/API Testing
-
-The backend includes built-in CORS support for local development. You can connect any frontend framework or use tools like Postman.
-
-## Scraped Sources
-
-1. **The Real Deal** (therealdeal.com) - National CRE news
-2. **Bisnow** (bisnow.com) - 27+ markets, daily newsletters
-3. **GlobeSt.com** (globest.com) - National news and analysis
-4. **Commercial Observer** (commercialobserver.com) - Finance, tech, investment
-5. **CRE Direct** (crenews.com) - CMBS, lending, capital markets
-6. **Connect CRE** (connect.media) - Daily news, property sectors
-7. **Propmodo** (propmodo.com) - Technology and innovation
-8. **NAIOP** (naiop.org) - CRE Development Association
-9. **Urban Land Institute** (urbanland.uli.org) - Land use, development
-10. **Yardi Matrix** (yardimatrix.com) - Market intelligence
+The backend ships with CORS enabled for local development, so any frontend or tool such as Postman can be pointed at the API directly.
 
 ## Troubleshooting
 
-### Backend Issues
-
-**Port already in use:**
-```bash
-# Change port in backend/src/main/resources/application.properties
-server.port=8081
-```
-
-**Database connection error:**
-```bash
-# Verify PostgreSQL is running
-pg_isready
-
-# Check connection details in application.properties
-```
-
-### Python Issues
-
-**Playwright Error:**
-```bash
-python -m playwright install
-```
-
-**Gemini API Errors:**
-- Check your API key is correct
-- Verify you have quota remaining
-
-**Database Connection Error:**
-- Ensure PostgreSQL is running
-- Verify credentials in .env file
+If the backend fails to start with a port conflict, set `SERVER_PORT` in `.env` or pass `--server.port=8081` on the command line. Database connection failures are usually caused by PostgreSQL not running or incorrect credentials in `.env`; run `pg_isready` to verify the server is reachable. On the Python side, a missing Playwright browser can be fixed with `python -m playwright install`, and Gemini API errors typically indicate an invalid or exhausted API key.
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License. See the LICENSE file for details.
 
 ## Contributing
 
-Contributions welcome! Please open an issue or submit a pull request.
+Contributions are welcome. Please open an issue to discuss proposed changes before submitting a pull request.
