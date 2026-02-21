@@ -78,29 +78,37 @@ python -m playwright install
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY and PostgreSQL credentials
+# Edit .env and add your secrets (GEMINI_API_KEY, DB_PASSWORD, etc.)
 ```
 
 ### Configuration
 
-Edit `.env` file:
+**All configuration is managed through the `.env` file.** This file contains:
+- API keys and secrets
+- Database credentials
+- Java backend settings
+- Python scraper settings
+
+Copy the example file and edit with your values:
 
 ```bash
-# Gemini API for deal extraction
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# PostgreSQL Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=notionflow
-DB_USER=postgres
-DB_PASSWORD=your_secure_password_here
-
-# Maximum articles to scrape per source (optional)
-MAX_ARTICLES_PER_SOURCE=
+cp .env.example .env
+nano .env  # or use your preferred editor
 ```
 
-**⚠️ Security Note:** Never commit real passwords to version control. Always use strong, unique passwords and set them via environment variables.
+**Required variables:**
+- `GEMINI_API_KEY` - Your Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- `DB_PASSWORD` - Your PostgreSQL database password (use a strong password)
+
+**Optional variables:**
+- `SERVER_PORT` - Java backend port (default: 8080)
+- `MAX_ARTICLES_PER_SOURCE` - Scraping limit per source (default: unlimited)
+- `SPRING_JPA_HIBERNATE_DDL_AUTO` - Database schema management (default: update)
+- `LOGGING_LEVEL_ROOT` - Application logging level (default: INFO)
+
+See `.env.example` for complete documentation of all available configuration options.
+
+**⚠️ Security Note:** Never commit the `.env` file to version control. It's already in `.gitignore` to prevent accidental commits.
 
 ### Running the Pipeline
 

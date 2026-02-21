@@ -20,36 +20,51 @@ NotionFlow is a commercial real estate deal scraping and extraction system with 
 
 ## 3. Configuration
 
-### Backend Configuration
+**All configuration is centralized in the `.env` file** at the project root. This file contains all secrets, credentials, and configurable parameters for both the Java backend and Python scraper.
 
-**Environment Variables** (backend/src/main/resources/application.properties):
-```properties
-server.port=8080
-spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:notionflow}
-spring.datasource.username=${DB_USER:postgres}
-spring.datasource.password=${DB_PASSWORD:postgres}
-spring.jpa.hibernate.ddl-auto=update
-```
+### Setting Up Configuration
 
-### Python Configuration
+1. **Copy the example file:**
+   ```bash
+   cp .env.example .env
+   ```
 
-**Environment Variables** (`.env`):
-```bash
-# Gemini API for deal extraction
-GEMINI_API_KEY=your_gemini_api_key_here
+2. **Edit `.env` with your values:**
+   ```bash
+   nano .env  # or use your preferred editor
+   ```
 
-# PostgreSQL Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=notionflow
-DB_USER=postgres
-DB_PASSWORD=your_secure_password_here
+3. **Required variables:**
+   - `GEMINI_API_KEY` - Your Google Gemini API key
+   - `DB_PASSWORD` - Your PostgreSQL password (must be set, no default)
 
-# Optional: Limit articles per source
-MAX_ARTICLES_PER_SOURCE=100
-```
+### Configuration Variables
 
-**⚠️ Security Note:** Always use strong, unique passwords and never commit real credentials to version control. The DB_PASSWORD environment variable is required and must be set.
+The `.env` file includes comprehensive documentation for all variables:
+
+**API Keys & Secrets:**
+- `GEMINI_API_KEY` - Required for AI-powered extraction
+
+**Database Configuration:**
+- `DB_HOST` - PostgreSQL host (default: localhost)
+- `DB_PORT` - PostgreSQL port (default: 5432)
+- `DB_NAME` - Database name (default: notionflow)
+- `DB_USER` - Database user (default: postgres)
+- `DB_PASSWORD` - Database password (REQUIRED, no default)
+
+**Java Backend Settings:**
+- `SERVER_PORT` - Backend API port (default: 8080)
+- `SPRING_JPA_HIBERNATE_DDL_AUTO` - Schema management (default: update)
+- `SPRING_JPA_SHOW_SQL` - SQL logging (default: false)
+- `LOGGING_LEVEL_ROOT` - Root logging level (default: INFO)
+- `LOGGING_LEVEL_NOTIONFLOW` - App logging level (default: DEBUG)
+
+**Python Scraper Settings:**
+- `MAX_ARTICLES_PER_SOURCE` - Scraping limit (default: unlimited)
+
+See `.env.example` for complete documentation and all available options.
+
+**⚠️ Security Note:** The `.env` file contains sensitive credentials and should never be committed to version control. It's already in `.gitignore`.
 
 ## 4. Setup Instructions
 

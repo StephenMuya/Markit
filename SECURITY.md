@@ -6,38 +6,86 @@ If you discover a security vulnerability in NotionFlow, please report it by emai
 
 ## Security Best Practices
 
-### 1. Database Passwords
+### 1. Centralized Secrets Management
 
-**⚠️ NEVER commit database passwords to version control.**
+**All secrets and credentials are managed through the `.env` file.**
 
-- Always set `DB_PASSWORD` via environment variables
-- Use strong, unique passwords for production databases
-- The default password in `.env.example` is for example purposes only - change it immediately
-- For local development with Docker Compose, override the default by setting `DB_PASSWORD` in your environment
+- **Location**: Project root (`.env`)
+- **Template**: `.env.example` contains all available configuration options
+- **Protection**: `.env` is in `.gitignore` to prevent accidental commits
 
-### 2. API Keys
+**Setup:**
+```bash
+cp .env.example .env
+nano .env  # Edit with your actual values
+```
 
-- Never hardcode API keys (like `GEMINI_API_KEY`) in your code
-- Always use environment variables for sensitive credentials
-- Add `.env` to `.gitignore` to prevent accidental commits (already configured)
+**NEVER commit the `.env` file to version control!**
 
-### 3. Production Deployment
+### 2. Database Passwords
+
+**⚠️ Database passwords MUST be set via environment variables.**
+
+- Always set `DB_PASSWORD` in your `.env` file
+- Use strong, unique passwords (minimum 16 characters, mixed case, numbers, symbols)
+- The placeholder in `.env.example` is for documentation only - change it immediately
+- For local development with Docker Compose, the `.env` file is automatically loaded
+- Application will fail to start if `DB_PASSWORD` is not set (security by design)
+
+### 3. API Keys
+
+**All API keys are managed through the `.env` file:**
+
+- `GEMINI_API_KEY` - Required for AI-powered extraction
+- Never hardcode API keys in source code
+- Always use environment variables
+- Rotate API keys regularly
+
+### 4. Configuration Files
+
+**Java Backend (`application.properties`):**
+- Contains NO hardcoded secrets
+- All sensitive values reference environment variables from `.env`
+- Example: `spring.datasource.password=${DB_PASSWORD}`
+
+**Python Scraper:**
+- Reads all credentials from environment variables
+- Uses `python-dotenv` to load `.env` file
+- Validates required credentials at startup
+
+### 5. Production Deployment
 
 For production deployments:
 
-1. **Use Secret Management**: Store credentials in your platform's secret manager (AWS Secrets Manager, Azure Key Vault, etc.)
-2. **Rotate Credentials**: Regularly rotate database passwords and API keys
-3. **Least Privilege**: Grant only necessary database permissions
-4. **Enable SSL/TLS**: Use encrypted connections to PostgreSQL
+1. **Use Secret Management Services**: 
+   - AWS Secrets Manager
+   - Azure Key Vault
+   - Google Cloud Secret Manager
+   - HashiCorp Vault
 
-### 4. Docker Compose
+2. **Never use `.env` files in production**: Set environment variables through your platform's secret management system
 
-The `docker-compose.yml` file uses `${DB_PASSWORD:-changeme}` as a default. 
+3. **Rotate Credentials**: Regularly rotate all passwords and API keys
+
+4. **Least Privilege**: Grant only necessary database permissions
+
+5. **Enable SSL/TLS**: Use encrypted connections to PostgreSQL
+
+6. **Audit Logs**: Enable and monitor access logs
+
+### 6. Docker Compose
+
+The `docker-compose.yml` file uses environment variable substitution:
+
+```yaml
+POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+```
 
 **For local development:**
 ```bash
-# Create a .env file (already in .gitignore)
-echo "DB_PASSWORD=your_local_dev_password" > .env
+# The .env file is automatically loaded by docker-compose
+cp .env.example .env
+nano .env  # Set DB_PASSWORD and other values
 
 # Start services
 docker-compose up
@@ -45,20 +93,49 @@ docker-compose up
 
 **For production:** Use orchestration platforms (Kubernetes, ECS) with proper secret management instead of docker-compose.
 
-### 5. Code Review
+### 7. Environment Variable Validation
 
-- All passwords and secrets have been removed from the codebase
-- The application now requires `DB_PASSWORD` to be set via environment variable
-- Failing to set `DB_PASSWORD` will result in a clear error message
+The application validates required environment variables at startup:
+
+**Python Scraper:**
+```python
+if not db_password:
+    raise ValueError(
+        "DB_PASSWORD environment variable must be set. "
+        "Never use hardcoded passwords in your code."
+    )
+```
+
+**Java Backend:**
+```properties
+spring.datasource.password=${DB_PASSWORD}
+# No default value - application fails to start if not set
+```
+
+### 8. Code Review Checklist
+
+Before deploying:
+
+- ✅ All secrets in `.env` file (not hardcoded)
+- ✅ `.env` file in `.gitignore`
+- ✅ `.env.example` has placeholder values only
+- ✅ No passwords in git history
+- ✅ Strong passwords used (16+ characters)
+- ✅ API keys rotated if exposed
+- ✅ Production uses secret management service
 
 ## Security Features
 
+- ✅ Centralized secrets management in `.env` file
 - ✅ No hardcoded passwords in source code
 - ✅ All database queries use parameterized statements (SQL injection prevention)
 - ✅ URL validation uses proper parsing (injection prevention)
 - ✅ Environment variable validation for required secrets
 - ✅ `.env` file in `.gitignore`
+- ✅ Professional `.env.example` template with documentation
+- ✅ Application fails fast if credentials not provided
 
 ## Contact
 
 For security concerns, please contact the repository maintainers.
+
