@@ -1,4 +1,5 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import os
 from datetime import datetime
 from typing import Optional, List, Dict, Any
@@ -6,29 +7,26 @@ import hashlib
 
 
 class Database:
-    """SQLite database manager for NotionFlow scraping system."""
+    """PostgreSQL database manager for NotionFlow scraping system."""
     
-    def __init__(self, db_path: str = None):
+    def __init__(self, connection_string: str = None):
         """Initialize database connection.
         
         Args:
-            db_path: Path to SQLite database file. Defaults to SQLITE_DB_PATH env var
-                     or './data/notionflow.db'
+            connection_string: PostgreSQL connection string. Defaults to env vars or
+                             postgresql://postgres:postgres@localhost:5432/notionflow
         """
-        if db_path is None:
-            db_path = os.getenv("SQLITE_DB_PATH", "./data/notionflow.db")
+        if connection_string is None:
+            # Build connection string from environment variables
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5432")
+            db_name = os.getenv("DB_NAME", "notionflow")
+            db_user = os.getenv("DB_USER", "postgres")
+            db_password = os.getenv("DB_PASSWORD", "postgres")
+            connection_string = f"host={db_host} port={db_port} dbname={db_name} user={db_user} password={db_password}"
         
-        self.db_path = db_path
-        
-        # Create directory if db_path includes one
-        # os.path.dirname() returns empty string for filenames without directories
-        # The 'if db_dir' check handles that case (empty string is falsy)
-        db_dir = os.path.dirname(db_path)
-        if db_dir:
-            os.makedirs(db_dir, exist_ok=True)
-        
-        self.conn = sqlite3.connect(db_path)
-        self.conn.row_factory = sqlite3.Row  # Enable column access by name
+        self.connection_string = connection_string
+        self.conn = psycopg2.connect(connection_string)
         self._initialize_schema()
     
     def _initialize_schema(self):
@@ -38,7 +36,7 @@ class Database:
         # Create firms table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS firms (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 firm_name TEXT NOT NULL UNIQUE,
                 firm_type TEXT NOT NULL,
                 website TEXT,
@@ -49,24 +47,22 @@ class Database:
         # Create deals table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS deals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 article_id TEXT NOT NULL UNIQUE,
                 source_name TEXT NOT NULL,
                 source_url TEXT NOT NULL,
                 title TEXT,
                 date_scraped TIMESTAMP NOT NULL,
                 equity_partner TEXT,
-                equity_partner_id INTEGER,
+                equity_partner_id INTEGER REFERENCES firms(id),
                 developer TEXT,
-                developer_id INTEGER,
+                developer_id INTEGER REFERENCES firms(id),
                 structure TEXT,
                 market TEXT,
                 summary TEXT,
                 confidence REAL,
                 content TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (equity_partner_id) REFERENCES firms (id),
-                FOREIGN KEY (developer_id) REFERENCES firms (id)
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         
@@ -92,6 +88,7 @@ class Database:
         """)
         
         self.conn.commit()
+        cursor.close()
     
     def get_or_create_firm(self, firm_name: str, firm_type: str, website: str = None) -> Optional[int]:
         """Get existing firm ID or create new firm.
@@ -112,24 +109,29 @@ class Database:
         
         # Check if firm exists
         cursor.execute(
-            "SELECT id FROM firms WHERE firm_name = ?",
+            "SELECT id FROM firms WHERE firm_name = %s",
             (firm_name,)
         )
         result = cursor.fetchone()
         
         if result:
-            return result[0]
+            firm_id = result[0]
+            cursor.close()
+            return firm_id
         
         # Create new firm
         cursor.execute(
             """
             INSERT INTO firms (firm_name, firm_type, website)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
+            RETURNING id
             """,
             (firm_name, firm_type, website)
         )
+        firm_id = cursor.fetchone()[0]
         self.conn.commit()
-        return cursor.lastrowid
+        cursor.close()
+        return firm_id
     
     def deal_exists(self, article_id: str) -> bool:
         """Check if a deal with given article_id already exists.
@@ -142,10 +144,12 @@ class Database:
         """
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT 1 FROM deals WHERE article_id = ? LIMIT 1",
+            "SELECT 1 FROM deals WHERE article_id = %s LIMIT 1",
             (article_id,)
         )
-        return cursor.fetchone() is not None
+        exists = cursor.fetchone() is not None
+        cursor.close()
+        return exists
     
     def insert_deal(self, deal: Dict[str, Any]) -> bool:
         """Insert a new deal into the database.
@@ -188,7 +192,7 @@ class Database:
                 article_id, source_name, source_url, title, date_scraped,
                 equity_partner, equity_partner_id, developer, developer_id,
                 structure, market, summary, confidence, content
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 article_id,
@@ -208,6 +212,7 @@ class Database:
             )
         )
         self.conn.commit()
+        cursor.close()
         print(f"Inserted deal: {deal.get('summary', 'No summary')[:50]}...")
         return True
     
@@ -220,16 +225,17 @@ class Database:
         Returns:
             List of deal dictionaries
         """
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor(cursor_factory=RealDictCursor)
         query = "SELECT * FROM deals ORDER BY date_scraped DESC"
         
         if limit:
-            query += " LIMIT ?"
+            query += " LIMIT %s"
             cursor.execute(query, (limit,))
         else:
             cursor.execute(query)
         
         rows = cursor.fetchall()
+        cursor.close()
         
         return [dict(row) for row in rows]
     
@@ -242,12 +248,13 @@ class Database:
         Returns:
             List of deal dictionaries
         """
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
-            "SELECT * FROM deals WHERE source_name = ? ORDER BY date_scraped DESC",
+            "SELECT * FROM deals WHERE source_name = %s ORDER BY date_scraped DESC",
             (source_name,)
         )
         rows = cursor.fetchall()
+        cursor.close()
         return [dict(row) for row in rows]
     
     def get_all_firms(self) -> List[Dict[str, Any]]:
@@ -256,9 +263,10 @@ class Database:
         Returns:
             List of firm dictionaries
         """
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM firms ORDER BY firm_name")
         rows = cursor.fetchall()
+        cursor.close()
         return [dict(row) for row in rows]
     
     def get_stats(self) -> Dict[str, Any]:
@@ -281,6 +289,8 @@ class Database:
             GROUP BY source_name
         """)
         deals_by_source = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        cursor.close()
         
         return {
             "total_deals": total_deals,
@@ -319,8 +329,12 @@ def generate_article_id(url: str, date_scraped: str) -> str:
 if __name__ == "__main__":
     # Test database creation
     print("Testing database creation...")
-    db = Database("./data/notionflow.db")
-    stats = db.get_stats()
-    print(f"Database initialized: {stats}")
-    db.close()
-    print("Database test complete!")
+    try:
+        db = Database()
+        stats = db.get_stats()
+        print(f"Database initialized: {stats}")
+        db.close()
+        print("Database test complete!")
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Make sure PostgreSQL is running and accessible")

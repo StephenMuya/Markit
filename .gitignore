@@ -1,6 +1,21 @@
 .env
-node_modules/
 __pycache__/
 *.pyc
-data/*.db
-data/*.db-journal
+
+# Java
+backend/target/
+backend/.mvn/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Build artifacts
+/dist/
+/build/
+

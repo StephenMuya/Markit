@@ -11,8 +11,9 @@ python-dotenv
 # Testing
 pytest
 
-# Legacy (optional - only needed for Notion integration)
-notion-client
+# PostgreSQL Database Driver
+psycopg2-binary
 
-# Note: SQLite is built into Python 3, no additional package needed
+# Legacy (optional - only needed for Notion integration, no longer used)
+# notion-client
 

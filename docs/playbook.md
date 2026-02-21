@@ -1,53 +1,218 @@
-# System Playbook: Audio Capture & Article Scraping
+# System Playbook: NotionFlow CRE Scraping System
 
 ## 1. System Overview
-This project consists of two automated pipelines:
-1.  **Audio Capture**: Fireflies.ai -> Make.com -> Notion.
-2.  **Article Scraping**: Python Scraper -> Gemini AI -> SQLite Database.
+NotionFlow is a commercial real estate deal scraping and extraction system with two main components:
+1. **Java Spring Boot Backend**: RESTful API with PostgreSQL database
+2. **Python Scraper**: Web scraping + AI extraction pipeline
 
-## 2. Configuration (`.env`)
-Ensure your `.env` file in the root directory has the following:
-```bash
-# Required for deal extraction
-GEMINI_API_KEY=your_gemini_api_key_here
+## 2. Architecture
 
-# Optional: SQLite database path (default: ./data/notionflow.db)
-SQLITE_DB_PATH=./data/notionflow.db
+### Backend (Java Spring Boot)
+- REST API for all database operations
+- JPA/Hibernate for ORM
+- PostgreSQL for data storage
+- Automatic schema management
 
-# Optional: Limit articles per source (default: unlimited)
-MAX_ARTICLES_PER_SOURCE=100
+### Scraping System (Python)
+- Playwright-based web scraping for 10 CRE news sources
+- Google Gemini AI for deal extraction
+- PostgreSQL integration for data persistence
 
-# Legacy Notion configuration (no longer needed)
-# NOTION_API_KEY=secret_...
-# FIRMS_DB_ID=...
-# EQUITY_DB_ID=...
+## 3. Configuration
+
+### Backend Configuration
+
+**Environment Variables** (backend/src/main/resources/application.properties):
+```properties
+server.port=8080
+spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:notionflow}
+spring.datasource.username=${DB_USER:postgres}
+spring.datasource.password=${DB_PASSWORD:postgres}
+spring.jpa.hibernate.ddl-auto=update
 ```
 
-## 3. Audio Capture System
-### Setup
-1.  Run `node notion_setup/setup_databases.js`.
-2.  Copy the Database IDs output to your Make.com scenario "Notion" modules.
-3.  Deploy the Make.com scenario as described in `docs/make_scenario_flow.md`.
+### Python Configuration
 
-### Operation
-- **Automatic**: Scheduled calls recorded by Fireflies will trigger the webhook.
-- **Manual**: Upload recording to Fireflies to trigger.
-- **Review**: Check "Needs Review" DB in Notion for low-confidence matches.
+**Environment Variables** (`.env`):
+```bash
+# Gemini API for deal extraction
+GEMINI_API_KEY=your_gemini_api_key_here
 
-### Troubleshooting
-- **No Entry in Notion**: Check Make.com "History" for errors. If "Duplicate", checking Idempotency logic worked.
-- **Bad Match**: Adjust threshold in `matchParticipants` logic (or Make.com function).
+# PostgreSQL Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=notionflow
+DB_USER=postgres
+DB_PASSWORD=postgres
 
-## 4. Article Scraping System
+# Optional: Limit articles per source
+MAX_ARTICLES_PER_SOURCE=100
+```
 
-### Overview
-The scraping system now uses **SQLite** instead of Notion for data storage, providing:
-- No API rate limits
-- Faster queries
-- Local database control
-- Automatic idempotency checking
+## 4. Setup Instructions
 
-### Scraped Sources (10 total)
+### Prerequisites
+- Java 17+
+- Maven 3.8+
+- Python 3.8+
+- PostgreSQL 12+
+- Google Gemini API key
+
+### Database Setup
+```bash
+# Create database
+createdb notionflow
+
+# Or using psql
+psql -U postgres
+CREATE DATABASE notionflow;
+\q
+```
+
+### Backend Setup
+```bash
+cd backend
+
+# Build
+mvn clean install
+
+# Run
+mvn spring-boot:run
+
+# Or with JAR
+java -jar target/notionflow-backend-1.0.0.jar
+```
+
+### Python Setup
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Install browsers
+python -m playwright install
+
+# Configure .env file
+cp .env.example .env
+# Edit .env with your credentials
+```
+
+## 5. Operation
+
+### Running the Scraping Pipeline
+
+**Manual execution:**
+```bash
+cd scraping_system
+
+# Step 1: Scrape articles
+python scraper.py
+
+# Step 2: Extract deals with AI
+python extractor.py
+
+# Step 3: Save to database
+python integration.py
+```
+
+**Using Docker Compose:**
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f backend
+
+# Stop services
+docker-compose down
+```
+
+### API Usage
+
+**Get all deals:**
+```bash
+curl http://localhost:8080/api/deals
+```
+
+**Search deals:**
+```bash
+curl "http://localhost:8080/api/deals/search?keyword=Blackstone"
+```
+
+**Get statistics:**
+```bash
+curl http://localhost:8080/api/stats
+```
+
+**Get deals by source:**
+```bash
+curl "http://localhost:8080/api/deals/source/The Real Deal"
+```
+
+## 6. Database Schema
+
+### Firms Table
+Stores unique firms (equity partners and developers):
+- id (SERIAL PRIMARY KEY)
+- firm_name (TEXT UNIQUE)
+- firm_type (TEXT)
+- website (TEXT)
+- created_at (TIMESTAMP)
+
+### Deals Table
+Stores scraped CRE deals:
+- id (SERIAL PRIMARY KEY)
+- article_id (TEXT UNIQUE) - MD5 hash for idempotency
+- source_name (TEXT)
+- source_url (TEXT)
+- title (TEXT)
+- date_scraped (TIMESTAMP)
+- equity_partner (TEXT)
+- equity_partner_id (FK to firms)
+- developer (TEXT)
+- developer_id (FK to firms)
+- structure (TEXT)
+- market (TEXT)
+- summary (TEXT)
+- confidence (REAL)
+- content (TEXT)
+- created_at (TIMESTAMP)
+
+## 7. Querying the Database
+
+### Using PostgreSQL
+
+```sql
+# View recent deals
+SELECT * FROM deals ORDER BY date_scraped DESC LIMIT 10;
+
+# Count by source
+SELECT source_name, COUNT(*) 
+FROM deals 
+GROUP BY source_name;
+
+# High confidence deals
+SELECT title, equity_partner, developer, confidence 
+FROM deals 
+WHERE confidence > 0.8 
+ORDER BY confidence DESC;
+
+# Deals by firm
+SELECT d.title, d.market, d.structure 
+FROM deals d
+JOIN firms f ON d.equity_partner_id = f.id
+WHERE f.firm_name = 'Blackstone';
+```
+
+### Using REST API
+
+The Java backend provides a cleaner interface:
+- GET /api/deals - All deals
+- GET /api/deals/search?keyword=X - Search
+- GET /api/stats - Statistics
+- GET /api/firms - All firms
+
+## 8. Scraped Sources (10 total)
+
 1. **The Real Deal** - https://therealdeal.com
 2. **Bisnow** - https://www.bisnow.com
 3. **GlobeSt.com** - https://www.globest.com
@@ -59,136 +224,126 @@ The scraping system now uses **SQLite** instead of Notion for data storage, prov
 9. **Urban Land Institute (ULI)** - https://urbanland.uli.org
 10. **Yardi Matrix** - https://www.yardimatrix.com
 
-### Setup
-1.  Install Python dependencies: `pip install -r requirements.txt`
-2.  Install Playwright browsers: `python -m playwright install`
-3.  Configure your `.env` file with `GEMINI_API_KEY`
-4.  The SQLite database will be created automatically on first run
+## 9. Troubleshooting
 
-### Operation
-Run the complete scraping pipeline:
+### Backend Issues
+
+**Database Connection Error:**
 ```bash
-# Option 1: Run all steps at once (Recommended)
-./run.sh      # Linux/Mac
-run.bat       # Windows
+# Check PostgreSQL is running
+pg_isready
 
-# Option 2: Run steps individually
-python scraping_system/scraper.py
-python scraping_system/extractor.py
-python scraping_system/integration.py
+# Verify connection string in application.properties
 ```
 
-*Tip: The run scripts handle the complete pipeline and show statistics at the end.*
-
-### Database Schema
-The SQLite database contains two main tables:
-
-**firms table:**
-- id (primary key)
-- firm_name (unique)
-- firm_type (Equity Partner, Developer, etc.)
-- website
-- created_at
-
-**deals table:**
-- id (primary key)
-- article_id (unique, for idempotency)
-- source_name
-- source_url
-- title
-- date_scraped
-- equity_partner
-- equity_partner_id (foreign key to firms)
-- developer
-- developer_id (foreign key to firms)
-- structure
-- market
-- summary
-- confidence
-- content
-- created_at
-
-### Querying the Database
-You can query the SQLite database directly using the `sqlite3` command-line tool or any SQLite client:
-
+**Port Already in Use:**
 ```bash
-# Open the database
-sqlite3 ./data/notionflow.db
-
-# View all deals
-SELECT * FROM deals ORDER BY date_scraped DESC LIMIT 10;
-
-# View all firms
-SELECT * FROM firms ORDER BY firm_name;
-
-# Count deals by source
-SELECT source_name, COUNT(*) as count 
-FROM deals 
-GROUP BY source_name 
-ORDER BY count DESC;
-
-# Find deals by equity partner
-SELECT * FROM deals WHERE equity_partner LIKE '%Blackstone%';
-
-# Get recent high-confidence deals
-SELECT source_name, title, confidence, market 
-FROM deals 
-WHERE confidence > 0.8 
-ORDER BY date_scraped DESC 
-LIMIT 20;
+# Change port in application.properties
+server.port=8081
 ```
 
-**Using the built-in query utility:**
+### Python Issues
+
+**Playwright Error:**
 ```bash
-cd scraping_system
-
-# Show statistics
-python query_db.py stats
-
-# List recent deals  
-python query_db.py recent 10
-
-# List all firms
-python query_db.py firms
-
-# Search for deals containing keyword
-python query_db.py search "Blackstone"
-
-# List deals from specific source
-python query_db.py source "The Real Deal"
+python -m playwright install
 ```
 
-Or use Python:
-```python
-from scraping_system.database import Database
-
-db = Database()
-stats = db.get_stats()
-print(stats)
-
-deals = db.get_all_deals(limit=10)
-for deal in deals:
-    print(deal['title'], deal['source_name'])
-
-db.close()
+**Database Connection Error:**
+```bash
+# Verify PostgreSQL is running
+# Check .env file credentials
 ```
 
-### Troubleshooting
-- **Playwright Error**: Run `python -m playwright install`.
-- **Selector Error**: Websites change layouts. Update selectors in `scraper.py`.
-- **Gemini API Error**: Check API key and quota.
-- **Database Locked**: Ensure no other process is accessing the database.
+**Gemini API Error:**
+- Check API key
+- Verify quota
 
-### Configuration Options
+## 10. Deployment
 
-**MAX_ARTICLES_PER_SOURCE**: 
-- Default: Unlimited (scrapes all available articles)
-- Set to a number (e.g., 10, 50, 100) to limit articles per source
-- Useful for testing or quick runs
+### Using Docker Compose
+```bash
+docker-compose up -d
+```
 
-**SQLITE_DB_PATH**:
-- Default: `./data/notionflow.db`
-- Change to use a different database location
+### Using Render.com
+The `render.yaml` file configures:
+- PostgreSQL database
+- Java Spring Boot backend
+- Python scraper (cron job)
 
-## 5. Maintenance
-See `maintenance.md` for monthly tasks.
+Deploy by connecting your GitHub repository to Render.
+
+## 11. Maintenance
+
+### Database Maintenance
+```sql
+# Vacuum database
+VACUUM ANALYZE deals;
+VACUUM ANALYZE firms;
+
+# Check table sizes
+SELECT pg_size_pretty(pg_total_relation_size('deals'));
+SELECT pg_size_pretty(pg_total_relation_size('firms'));
+```
+
+### Backup
+```bash
+# Backup database
+pg_dump -U postgres notionflow > backup.sql
+
+# Restore database
+psql -U postgres notionflow < backup.sql
+```
+
+## 12. Development
+
+### Backend Development
+```bash
+cd backend
+
+# Run tests
+mvn test
+
+# Run with dev profile
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+### Adding New Scrapers
+1. Add method to `scraping_system/scraper.py`
+2. Follow existing pattern (async playwright)
+3. Add to `scrape_all_sources()` list
+4. Test with limited articles first
+
+### Modifying Database Schema
+1. Update JPA entities in `backend/src/main/java/com/notionflow/model/`
+2. Spring Boot will auto-update schema (ddl-auto=update)
+3. For production, use migrations (Flyway/Liquibase)
+
+## 13. API Documentation
+
+Full API documentation available at:
+```
+http://localhost:8080/swagger-ui.html
+```
+(Requires adding springdoc-openapi dependency)
+
+## 14. Monitoring
+
+### Application Health
+```bash
+# Check backend health
+curl http://localhost:8080/api/health
+
+# Check database
+pg_isready
+```
+
+### Logs
+```bash
+# Backend logs
+tail -f backend/logs/application.log
+
+# Docker logs
+docker-compose logs -f backend
+```

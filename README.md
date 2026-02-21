@@ -1,38 +1,75 @@
 # NotionFlow
 
-Automated scraping and deal extraction system for Commercial Real Estate (CRE) news sources.
+Automated scraping and deal extraction system for Commercial Real Estate (CRE) news sources with Java Spring Boot backend and PostgreSQL database.
 
 ## Overview
 
-NotionFlow is a Python-based system that:
-1. **Scrapes** articles from 10 major CRE news sources
-2. **Extracts** deal information using Google Gemini AI
-3. **Stores** deals in a local SQLite database with automatic deduplication
+NotionFlow is a hybrid Python/Java system that:
+1. **Scrapes** articles from 10 major CRE news sources (Python)
+2. **Extracts** deal information using Google Gemini AI (Python)
+3. **Stores** deals in PostgreSQL database via Java Spring Boot REST API
+4. **Provides** REST API for querying deals, firms, and statistics (Java)
+
+## Architecture
+
+- **Backend**: Java Spring Boot 3.2 + PostgreSQL
+- **Scraping**: Python with Playwright
+- **AI Extraction**: Google Gemini API
+- **Database**: PostgreSQL 12+
 
 ## Features
 
 - ✅ **10 CRE News Sources**: The Real Deal, Bisnow, GlobeSt, Commercial Observer, CRE Direct, Connect CRE, Propmodo, NAIOP, ULI, Yardi Matrix
-- ✅ **SQLite Database**: Fast, local storage with no API rate limits
+- ✅ **PostgreSQL Database**: Production-grade RDBMS with proper foreign keys and indexing
+- ✅ **Java Spring Boot API**: RESTful API for all database operations
 - ✅ **AI-Powered Extraction**: Google Gemini AI extracts structured deal data
 - ✅ **Automatic Deduplication**: Article-level idempotency prevents duplicates
 - ✅ **Firm Management**: Automatic firm tracking and relationship management
 - ✅ **Configurable Limits**: Control articles per source via environment variables
-- ✅ **Query Utilities**: Built-in CLI tools for database queries
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.8+
-- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- **Java 17+** and Maven 3.8+
+- **Python 3.8+**
+- **PostgreSQL 12+**
+- **Google Gemini API key** ([Get one here](https://makersuite.google.com/app/apikey))
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/StephenMuya/NotionFlow.git
-cd NotionFlow
+#### 1. Database Setup
 
+```bash
+# Create PostgreSQL database
+createdb notionflow
+
+# Or use psql
+psql -U postgres
+CREATE DATABASE notionflow;
+\q
+```
+
+#### 2. Backend Setup (Java Spring Boot)
+
+```bash
+cd backend
+
+# Build the project
+mvn clean install
+
+# Run the application
+mvn spring-boot:run
+
+# Or run the JAR directly
+java -jar target/notionflow-backend-1.0.0.jar
+```
+
+The API will be available at `http://localhost:8080`
+
+#### 3. Python Scraper Setup
+
+```bash
 # Install Python dependencies
 pip install -r requirements.txt
 
@@ -41,110 +78,149 @@ python -m playwright install
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Edit .env and add your GEMINI_API_KEY and PostgreSQL credentials
+```
+
+### Configuration
+
+Edit `.env` file:
+
+```bash
+# Gemini API for deal extraction
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# PostgreSQL Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=notionflow
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+# Maximum articles to scrape per source (optional)
+MAX_ARTICLES_PER_SOURCE=
 ```
 
 ### Running the Pipeline
 
-**Option 1: Run all steps at once (Recommended)**
-```bash
-# Linux/Mac
-./run.sh
+**Step-by-step execution:**
 
-# Windows
-run.bat
-```
-
-**Option 2: Run steps individually**
 ```bash
 cd scraping_system
 
-# Step 1: Scrape articles
+# Step 1: Scrape articles from all 10 sources
 python scraper.py
 
-# Step 2: Extract deals using AI
+# Step 2: Extract deals using Gemini AI
 python extractor.py
 
-# Step 3: Save to database
+# Step 3: Save deals to PostgreSQL database
 python integration.py
 ```
 
-## Configuration
+## API Endpoints
 
-Edit `.env` file to configure the system:
+The Java Spring Boot backend provides the following REST endpoints:
+
+### Health Check
+```
+GET /api/health
+```
+
+### Deals
+```
+GET  /api/deals              - Get all deals
+GET  /api/deals/source/{name} - Get deals by source
+GET  /api/deals/search?keyword={keyword} - Search deals
+POST /api/deals              - Create a new deal
+```
+
+### Firms
+```
+GET  /api/firms              - Get all firms
+```
+
+### Statistics
+```
+GET  /api/stats              - Get database statistics
+```
+
+### Example API Usage
 
 ```bash
-# Required: Your Gemini API key
-GEMINI_API_KEY=your_api_key_here
+# Get all deals
+curl http://localhost:8080/api/deals
 
-# Optional: Database path (default: ./data/notionflow.db)
-SQLITE_DB_PATH=./data/notionflow.db
+# Search for deals
+curl "http://localhost:8080/api/deals/search?keyword=Blackstone"
 
-# Optional: Limit articles per source (default: unlimited)
-# Set to a number like 10, 50, or 100 for testing
-MAX_ARTICLES_PER_SOURCE=
+# Get statistics
+curl http://localhost:8080/api/stats
+
+# Create a new deal
+curl -X POST http://localhost:8080/api/deals \
+  -H "Content-Type: application/json" \
+  -d '{
+    "articleId": "unique-id-123",
+    "sourceName": "The Real Deal",
+    "sourceUrl": "https://example.com/article",
+    "title": "Major CRE Deal",
+    "dateScraped": "2024-01-15T10:00:00",
+    "equityPartner": "Blackstone",
+    "developer": "Related Companies",
+    "structure": "Joint Venture",
+    "market": "Miami",
+    "summary": "Deal summary here",
+    "confidence": 0.92
+  }'
 ```
 
 ## Database Schema
 
 ### Firms Table
-- `id` - Primary key
-- `firm_name` - Unique firm name
-- `firm_type` - Type (Equity Partner, Developer, etc.)
-- `website` - Firm website
-- `created_at` - Timestamp
+```sql
+CREATE TABLE firms (
+    id SERIAL PRIMARY KEY,
+    firm_name TEXT NOT NULL UNIQUE,
+    firm_type TEXT NOT NULL,
+    website TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ### Deals Table
-- `id` - Primary key
-- `article_id` - Unique hash for idempotency
-- `source_name` - News source
-- `source_url` - Article URL
-- `title` - Article title
-- `date_scraped` - When scraped
-- `equity_partner` - Equity partner name
-- `equity_partner_id` - Foreign key to firms
-- `developer` - Developer name
-- `developer_id` - Foreign key to firms
-- `structure` - Deal structure
-- `market` - Geographic market
-- `summary` - Deal summary
-- `confidence` - AI confidence score (0-1)
-- `content` - Full article content
-- `created_at` - Timestamp
+```sql
+CREATE TABLE deals (
+    id SERIAL PRIMARY KEY,
+    article_id TEXT NOT NULL UNIQUE,
+    source_name TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    title TEXT,
+    date_scraped TIMESTAMP NOT NULL,
+    equity_partner TEXT,
+    equity_partner_id INTEGER REFERENCES firms(id),
+    developer TEXT,
+    developer_id INTEGER REFERENCES firms(id),
+    structure TEXT,
+    market TEXT,
+    summary TEXT,
+    confidence REAL,
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ## Querying the Database
 
-### Using the CLI Tool
+### Using psql
 
 ```bash
-cd scraping_system
-
-# Show statistics
-python query_db.py stats
-
-# List recent deals
-python query_db.py recent 10
-
-# List all firms
-python query_db.py firms
-
-# Search for deals
-python query_db.py search "Blackstone"
-
-# List deals from specific source
-python query_db.py source "The Real Deal"
-```
-
-### Using SQLite directly
-
-```bash
-sqlite3 ./data/notionflow.db
+psql -U postgres -d notionflow
 
 # View all deals
 SELECT * FROM deals ORDER BY date_scraped DESC LIMIT 10;
 
 # Count deals by source
-SELECT source_name, COUNT(*) as count 
+SELECT source_name, COUNT(*) 
 FROM deals 
 GROUP BY source_name;
 
@@ -155,27 +231,55 @@ WHERE confidence > 0.8
 ORDER BY confidence DESC;
 ```
 
-### Using Python
+### Using the REST API
 
-```python
-from scraping_system.database import Database
+The Java backend provides a cleaner interface for querying data without direct database access.
 
-db = Database()
+## Project Structure
 
-# Get statistics
-stats = db.get_stats()
-print(f"Total deals: {stats['total_deals']}")
-
-# Get recent deals
-deals = db.get_all_deals(limit=10)
-for deal in deals:
-    print(deal['title'])
-
-# Get deals by source
-trd_deals = db.get_deals_by_source("The Real Deal")
-
-db.close()
 ```
+NotionFlow/
+├── backend/                      # Java Spring Boot backend
+│   ├── src/main/java/com/notionflow/
+│   │   ├── controller/          # REST controllers
+│   │   ├── service/             # Business logic
+│   │   ├── model/               # JPA entities
+│   │   ├── repository/          # Data access layer
+│   │   └── NotionFlowApplication.java
+│   ├── src/main/resources/
+│   │   └── application.properties
+│   └── pom.xml                  # Maven configuration
+├── scraping_system/             # Python scraping & extraction
+│   ├── scraper.py              # Web scraper for 10 sources
+│   ├── extractor.py            # AI-powered deal extraction
+│   ├── integration.py          # Database integration
+│   └── database.py             # PostgreSQL operations
+├── docs/                        # Documentation
+├── .env.example                 # Environment configuration template
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
+```
+
+## Development
+
+### Backend Development (Java)
+
+```bash
+cd backend
+
+# Run tests
+mvn test
+
+# Run with dev profile
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Package for production
+mvn clean package
+```
+
+### Frontend/API Testing
+
+The backend includes built-in CORS support for local development. You can connect any frontend framework or use tools like Postman.
 
 ## Scraped Sources
 
@@ -190,88 +294,38 @@ db.close()
 9. **Urban Land Institute** (urbanland.uli.org) - Land use, development
 10. **Yardi Matrix** (yardimatrix.com) - Market intelligence
 
-## Project Structure
-
-```
-NotionFlow/
-├── scraping_system/
-│   ├── scraper.py          # Web scraper for all sources
-│   ├── extractor.py        # AI-powered deal extraction
-│   ├── integration.py      # SQLite database integration
-│   ├── database.py         # Database schema and operations
-│   └── query_db.py         # Database query utility
-├── data/
-│   └── notionflow.db       # SQLite database (created automatically)
-├── docs/
-│   └── playbook.md         # Detailed documentation
-├── run.sh                  # Linux/Mac pipeline script
-├── run.bat                 # Windows pipeline script
-├── requirements.txt        # Python dependencies
-└── .env.example           # Environment configuration template
-```
-
-## Development
-
-### Adding a New Source
-
-1. Add a new scraper method to `scraping_system/scraper.py`:
-```python
-async def scrape_new_source(self):
-    """Scrape New Source CRE news."""
-    print("Scraping New Source...")
-    articles = []
-    # ... scraping logic ...
-    return articles
-```
-
-2. Add the method to `scrape_all_sources()`:
-```python
-sources = [
-    # ... existing sources ...
-    self.scrape_new_source(),
-]
-```
-
-### Testing
-
-```bash
-# Test database operations
-python scraping_system/database.py
-
-# Test with limited articles
-export MAX_ARTICLES_PER_SOURCE=5
-python scraping_system/scraper.py
-```
-
-## Migration from Notion
-
-If you're migrating from the previous Notion-based version:
-
-1. The database schema matches the Notion structure
-2. Firm deduplication works the same way
-3. Article IDs ensure no duplicates when migrating data
-4. The extraction logic remains unchanged
-
 ## Troubleshooting
 
-### Playwright Error
+### Backend Issues
+
+**Port already in use:**
+```bash
+# Change port in backend/src/main/resources/application.properties
+server.port=8081
+```
+
+**Database connection error:**
+```bash
+# Verify PostgreSQL is running
+pg_isready
+
+# Check connection details in application.properties
+```
+
+### Python Issues
+
+**Playwright Error:**
 ```bash
 python -m playwright install
 ```
 
-### Gemini API Errors
+**Gemini API Errors:**
 - Check your API key is correct
 - Verify you have quota remaining
-- The system retries on rate limits (429 errors)
 
-### Database Locked
-- Ensure no other process is accessing the database
-- Close any SQLite browser tools
-
-### Scraping Failures
-- Some sites may block automated access
-- Sites may have changed their structure (update selectors)
-- Use `MAX_ARTICLES_PER_SOURCE` to test with fewer articles
+**Database Connection Error:**
+- Ensure PostgreSQL is running
+- Verify credentials in .env file
 
 ## License
 
@@ -280,10 +334,3 @@ MIT License - see LICENSE file for details
 ## Contributing
 
 Contributions welcome! Please open an issue or submit a pull request.
-
-## Support
-
-For issues or questions:
-- Open a GitHub issue
-- Check the [documentation](docs/playbook.md)
-- Review error messages and logs
