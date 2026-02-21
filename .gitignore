@@ -21,3 +21,6 @@ backend/out/
 /dist/
 /build/
 
+# Python testing
+.pytest_cache/
+
