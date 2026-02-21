@@ -197,10 +197,12 @@ class MarkitAudioProcessor:
                 f"Entity extraction output validation failed: {e}"
             ) from e
 
-        logger.info("Entity extraction complete: condition=%s, prices=%d, defects=%d",
-                     result.property_condition,
-                     len(result.price_mentions),
-                     len(result.key_defects))
+        logger.info(
+            "Entity extraction complete: condition=%s, prices=%d, defects=%d",
+            result.property_condition,
+            len(result.price_mentions),
+            len(result.key_defects),
+        )
         return result
 
     def process(self, file_path: str) -> AudioAnalysisResult:
