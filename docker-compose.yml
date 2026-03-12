@@ -3,9 +3,9 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: notionflow-postgres
+    container_name: markit-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-notionflow}
+      POSTGRES_DB: ${DB_NAME:-markit}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
     ports:
@@ -22,11 +22,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: notionflow-backend
+    container_name: markit-backend
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-notionflow}
+      DB_NAME: ${DB_NAME:-markit}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-changeme}
     ports:

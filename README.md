@@ -1,6 +1,6 @@
-# NotionFlow
+# Markit
 
-NotionFlow is an automated data pipeline for Commercial Real Estate (CRE) deal intelligence. It scrapes articles from ten major industry news sources, extracts structured deal information using the Google Gemini large language model, and persists the results in a PostgreSQL database exposed through a Spring Boot REST API. The scraping layer is written in Python (Playwright + BeautifulSoup); the backend is Java 17 on Spring Boot 3.2.
+Markit is an automated data pipeline for Commercial Real Estate (CRE) deal intelligence. It scrapes articles from ten major industry news sources, extracts structured deal information using the Google Gemini large language model, and persists the results in a PostgreSQL database exposed through a Spring Boot REST API. The scraping layer is written in Python (Playwright + BeautifulSoup); the backend is Java 17 on Spring Boot 3.2.
 
 ## Architecture
 
@@ -24,8 +24,8 @@ Both components read connection credentials and runtime settings from a shared `
 ### Database
 
 ```bash
-createdb notionflow
-# or: psql -U postgres -c "CREATE DATABASE notionflow;"
+createdb markit
+# or: psql -U postgres -c "CREATE DATABASE markit;"
 ```
 
 ### Backend
@@ -161,14 +161,14 @@ The scraper targets the following CRE publications:
 ## Project Layout
 
 ```
-NotionFlow/
+Markit/
   backend/
-    src/main/java/com/notionflow/
+    src/main/java/com/markit/
       controller/       REST controllers
       service/          Business logic
       model/            JPA entities
       repository/       Spring Data repositories
-      NotionFlowApplication.java
+      MarkitApplication.java
     src/main/resources/
       application.properties
     build.gradle

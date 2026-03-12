@@ -1,5 +1,5 @@
 #!/bin/bash
-# run.sh - Complete NotionFlow scraping pipeline
+# run.sh - Complete Markit scraping pipeline
 # This script runs the entire scraping, extraction, and integration pipeline
 
 set -e  # Exit on error
@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 echo "======================================"
-echo "NotionFlow Scraping Pipeline"
+echo "Markit Scraping Pipeline"
 echo "======================================"
 echo ""
 

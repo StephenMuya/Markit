@@ -1,8 +1,8 @@
-package com.notionflow.controller;
+package com.markit.controller;
 
-import com.notionflow.model.Deal;
-import com.notionflow.model.Firm;
-import com.notionflow.service.DealService;
+import com.markit.model.Deal;
+import com.markit.model.Firm;
+import com.markit.service.DealService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class DealController {
 
     @GetMapping("/health")
     public ResponseEntity<String> health() {
-        return ResponseEntity.ok("NotionFlow API is running");
+        return ResponseEntity.ok("Markit API is running");
     }
 
     @PostMapping("/deals")

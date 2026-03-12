@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database query utility for NotionFlow SQLite database.
+Database query utility for Markit SQLite database.
 Provides simple commands to view deals, firms, and statistics.
 """
 

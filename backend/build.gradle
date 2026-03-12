@@ -4,9 +4,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
-group = 'com.notionflow'
+group = 'com.markit'
 version = '1.0.0'
-description = 'NotionFlow Backend - Java Spring Boot backend for CRE scraping system'
+description = 'Markit Backend - Java Spring Boot backend for CRE scraping system'
 
 java {
     sourceCompatibility = '17'

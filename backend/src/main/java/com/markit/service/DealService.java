@@ -1,9 +1,9 @@
-package com.notionflow.service;
+package com.markit.service;
 
-import com.notionflow.model.Deal;
-import com.notionflow.model.Firm;
-import com.notionflow.repository.DealRepository;
-import com.notionflow.repository.FirmRepository;
+import com.markit.model.Deal;
+import com.markit.model.Firm;
+import com.markit.repository.DealRepository;
+import com.markit.repository.FirmRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
