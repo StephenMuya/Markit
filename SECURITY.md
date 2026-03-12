@@ -2,7 +2,7 @@
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability in NotionFlow, please report it by emailing the repository owner or opening a private security advisory on GitHub.
+If you discover a security vulnerability in Markit, please report it by emailing the repository owner or opening a private security advisory on GitHub.
 
 ## Security Best Practices
 

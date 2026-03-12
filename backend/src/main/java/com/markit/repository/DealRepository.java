@@ -1,6 +1,6 @@
-package com.notionflow.repository;
+package com.markit.repository;
 
-import com.notionflow.model.Deal;
+import com.markit.model.Deal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

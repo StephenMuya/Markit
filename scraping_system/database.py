@@ -7,7 +7,7 @@ import hashlib
 
 
 class Database:
-    """PostgreSQL database manager for NotionFlow scraping system."""
+    """PostgreSQL database manager for Markit scraping system."""
     
     def __init__(self, connection_string: str = None):
         """Initialize database connection.
@@ -21,7 +21,7 @@ class Database:
             # Build connection string from environment variables
             db_host = os.getenv("DB_HOST", "localhost")
             db_port = os.getenv("DB_PORT", "5432")
-            db_name = os.getenv("DB_NAME", "notionflow")
+            db_name = os.getenv("DB_NAME", "markit")
             db_user = os.getenv("DB_USER", "postgres")
             db_password = os.getenv("DB_PASSWORD")
             

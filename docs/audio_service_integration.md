@@ -104,7 +104,7 @@ audio.service.timeout=120000
 ### 2. Create a Service Class
 
 ```java
-package com.notionflow.service;
+package com.markit.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -178,7 +178,7 @@ Add the audio service to `docker-compose.yml`:
     build:
       context: .
       dockerfile: Dockerfile.audio
-    container_name: notionflow-audio
+    container_name: markit-audio
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:

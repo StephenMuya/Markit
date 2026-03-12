@@ -1,4 +1,4 @@
-package com.notionflow.model;
+package com.markit.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,4 +1,4 @@
-"""Enterprise-grade audio processing service for NotionFlow.
+"""Enterprise-grade audio processing service for Markit.
 
 Handles the full lifecycle of a voice note: from receiving a raw audio file
 to outputting structured JSON data with property analysis insights.

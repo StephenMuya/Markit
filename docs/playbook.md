@@ -1,7 +1,7 @@
-# System Playbook: NotionFlow CRE Scraping System
+# System Playbook: Markit CRE Scraping System
 
 ## 1. System Overview
-NotionFlow is a commercial real estate deal scraping and extraction system with two main components:
+Markit is a commercial real estate deal scraping and extraction system with two main components:
 1. **Java Spring Boot Backend**: RESTful API with PostgreSQL database
 2. **Python Scraper**: Web scraping + AI extraction pipeline
 
@@ -48,7 +48,7 @@ The `.env` file includes comprehensive documentation for all variables:
 **Database Configuration:**
 - `DB_HOST` - PostgreSQL host (default: localhost)
 - `DB_PORT` - PostgreSQL port (default: 5432)
-- `DB_NAME` - Database name (default: notionflow)
+- `DB_NAME` - Database name (default: markit)
 - `DB_USER` - Database user (default: postgres)
 - `DB_PASSWORD` - Database password (REQUIRED, no default)
 
@@ -57,7 +57,7 @@ The `.env` file includes comprehensive documentation for all variables:
 - `SPRING_JPA_HIBERNATE_DDL_AUTO` - Schema management (default: update)
 - `SPRING_JPA_SHOW_SQL` - SQL logging (default: false)
 - `LOGGING_LEVEL_ROOT` - Root logging level (default: INFO)
-- `LOGGING_LEVEL_NOTIONFLOW` - App logging level (default: DEBUG)
+- `LOGGING_LEVEL_MARKIT` - App logging level (default: DEBUG)
 
 **Python Scraper Settings:**
 - `MAX_ARTICLES_PER_SOURCE` - Scraping limit (default: unlimited)
@@ -78,11 +78,11 @@ See `.env.example` for complete documentation and all available options.
 ### Database Setup
 ```bash
 # Create database
-createdb notionflow
+createdb markit
 
 # Or using psql
 psql -U postgres
-CREATE DATABASE notionflow;
+CREATE DATABASE markit;
 \q
 ```
 
@@ -97,7 +97,7 @@ cd backend
 ./gradlew bootRun
 
 # Or with JAR
-java -jar build/libs/notionflow-backend-1.0.0.jar
+java -jar build/libs/markit-backend-1.0.0.jar
 ```
 
 ### Python Setup
@@ -307,10 +307,10 @@ SELECT pg_size_pretty(pg_total_relation_size('firms'));
 ### Backup
 ```bash
 # Backup database
-pg_dump -U postgres notionflow > backup.sql
+pg_dump -U postgres markit > backup.sql
 
 # Restore database
-psql -U postgres notionflow < backup.sql
+psql -U postgres markit < backup.sql
 ```
 
 ## 12. Development
@@ -333,7 +333,7 @@ cd backend
 4. Test with limited articles first
 
 ### Modifying Database Schema
-1. Update JPA entities in `backend/src/main/java/com/notionflow/model/`
+1. Update JPA entities in `backend/src/main/java/com/markit/model/`
 2. Spring Boot will auto-update schema (ddl-auto=update)
 3. For production, use migrations (Flyway/Liquibase)
 

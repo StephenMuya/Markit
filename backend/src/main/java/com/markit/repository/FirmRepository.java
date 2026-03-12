@@ -1,6 +1,6 @@
-package com.notionflow.repository;
+package com.markit.repository;
 
-import com.notionflow.model.Firm;
+import com.markit.model.Firm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

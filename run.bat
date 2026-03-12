@@ -1,5 +1,5 @@
 @echo off
-REM run.bat - Complete NotionFlow scraping pipeline for Windows
+REM run.bat - Complete Markit scraping pipeline for Windows
 REM This script runs the entire scraping, extraction, and integration pipeline
 
 REM Get the directory where this script is located
@@ -7,7 +7,7 @@ SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
 
 echo ======================================
-echo NotionFlow Scraping Pipeline
+echo Markit Scraping Pipeline
 echo ======================================
 echo.
 

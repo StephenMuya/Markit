@@ -1,43 +1,43 @@
 services:
   # PostgreSQL Database
   - type: pserv
-    name: notionflow-db
+    name: markit-db
     plan: free
     env: docker
     region: oregon
     databases:
-      - name: notionflow
+      - name: markit
         
   # Java Spring Boot Backend API
   - type: web
-    name: notionflow-backend
+    name: markit-backend
     env: java
     plan: free
     buildCommand: cd backend && ./gradlew build -x test
-    startCommand: cd backend && java -jar build/libs/notionflow-backend-1.0.0.jar
+    startCommand: cd backend && java -jar build/libs/markit-backend-1.0.0.jar
     envVars:
       - key: DB_HOST
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: host
       - key: DB_PORT
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: port
       - key: DB_NAME
-        value: notionflow
+        value: markit
       - key: DB_USER
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: user
       - key: DB_PASSWORD
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: password
           
   # Python Scraper (Cron Job - runs daily)
   - type: cron
-    name: notionflow-scraper
+    name: markit-scraper
     env: python
     plan: free
     schedule: "0 0 * * *"  # Daily at midnight
@@ -48,21 +48,21 @@ services:
         sync: false
       - key: DB_HOST
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: host
       - key: DB_PORT
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: port
       - key: DB_NAME
-        value: notionflow
+        value: markit
       - key: DB_USER
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: user
       - key: DB_PASSWORD
         fromDatabase:
-          name: notionflow-db
+          name: markit-db
           property: password
       - key: MAX_ARTICLES_PER_SOURCE
         value: "50"

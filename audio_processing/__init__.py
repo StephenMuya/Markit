@@ -1,4 +1,4 @@
-"""MarkitAudioProcessor - Enterprise audio processing service for NotionFlow."""
+"""MarkitAudioProcessor - Enterprise audio processing service for Markit."""
 
 from .processor import MarkitAudioProcessor
 from .models import AudioAnalysisResult
