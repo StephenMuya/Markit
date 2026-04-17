@@ -1,47 +1,35 @@
 # Deployment Guide
 
-This project is ready to be deployed on **Render** (recommended for ease of use) or any Node.js/Python compatible host.
+This repository is configured for deployment with a Java backend, Python scraping pipeline, and PostgreSQL.
 
-## Option 1: Deploy to Render (Recommended)
+## Render Blueprint Deployment
+1. Push repository changes.
+2. Create a new Render Blueprint from `render.yaml`.
+3. Configure required environment variables (especially `GEMINI_API_KEY`).
+4. Deploy services:
+   - Managed PostgreSQL (`markit-db`)
+   - Java backend web service (`markit-backend`)
+   - Python scraper cron service (`markit-scraper`)
 
-1.  **Push your code to GitHub/GitLab**.
-2.  **Create a Render Account** at [render.com](https://render.com).
-3.  **New Blueprint Instance**:
-    *   Click "New" -> "Blueprint".
-    *   Connect your repository.
-    *   Render will read the `render.yaml` file.
-4.  **Configure Environment Variables**:
-    *   You will be prompted to enter your secrets (`NOTION_API_KEY`, `OPENAI_API_KEY`, `PEOPLE_DB_ID`, `FIRMS_DB_ID`, `EQUITY_DB_ID`).
-    *   Get these IDs from the output of your local setup scripts (`setup_databases.js`, `setup_phase2.js`).
-5.  **Deploy**:
-    *   Render will spin up two services:
-        *   **Web Service**: The Node.js server for the Audio System matches. You'll get a URL like `https://workana-audio-system.onrender.com`.
-        *   **Cron Job**: The Python Scraper running daily at 9 AM.
+## Required Runtime Variables
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `GEMINI_API_KEY`
+- `MAX_ARTICLES_PER_SOURCE` (optional)
 
-## Option 2: Manual / Local Deployment
+## Local Validation Before Deploy
+```bash
+cd /home/runner/work/Markit/Markit
+pytest -q
 
-### Audio System Server
-1.  Run `npm start`.
-2.  Use a tool like **ngrok** to expose it locally for Make.com testing: `ngrok http 3000`.
-3.  Use the ngrok URL in your Make.com HTTP modules.
+cd /home/runner/work/Markit/Markit/backend
+./gradlew --no-daemon --console=plain test
+```
 
-### Scraper
-1.  Use Windows Task Scheduler or Mac Cron to run:
-    ```bash
-    python scraping_system/scraper.py && python scraping_system/extractor.py && python scraping_system/integration.py
-    ```
-
-## Connecting Make.com to the Server
-
-In your Make.com scenario, replacing the "Code" or "Function" module with an **HTTP Make a Request** module:
-*   **URL**: `[Your-Render-URL]/match-participants`
-*   **Method**: POST
-*   **Body Type**: JSON
-*   **Content**:
-    ```json
-    {
-       "transcriptNames": ["{{participants_analysis_array}}"],
-       "crmPeople": [] 
-    }
-    ```
-*   *(Note: `crmPeople` is optional. If you set `PEOPLE_DB_ID` in Render env vars, the server fetches from Notion automatically.)*
+## Operational Notes
+- Keep secrets out of source control.
+- Monitor scraper cron execution and extraction quality.
+- Treat deployment rollouts as product releases tied to TX + NY signal quality.
