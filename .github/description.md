@@ -1,1 +1,1 @@
-Location-aware real estate intelligence platform for Texas and New York. Markit structures 10 CRE sources into monetizable premium signals (development pipeline, deals, financing, distress, neighborhood change) for agents, brokers, investors, and homebuyers.
+Real estate intelligence platform for Texas and New York. Markit structures 10 CRE sources into monetizable premium signals (development pipeline, deals, financing, distress, neighborhood change) for agents, brokers, investors, and homebuyers.

@@ -1,6 +1,6 @@
 # Markit
 
-Markit is a location-aware real estate intelligence product for **Texas and New York**. It turns unstructured commercial real estate (CRE) news and market commentary into monetizable, decision-ready signals for **agents, brokers, investors, and homebuyers**.
+Markit is a real estate intelligence product for **Texas and New York**. It turns unstructured commercial real estate (CRE) news and market commentary into monetizable, decision-ready signals for **agents, brokers, investors, and homebuyers**.
 
 The product is built from 10 CRE sources and focuses on premium signals that help users act earlier than the market:
 - Development pipeline
