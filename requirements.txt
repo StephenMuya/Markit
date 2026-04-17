@@ -17,7 +17,3 @@ pytest
 
 # PostgreSQL Database Driver
 psycopg2-binary
-
-# Legacy (optional - only needed for Notion integration, no longer used)
-# notion-client
-
