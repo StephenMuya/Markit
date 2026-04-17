@@ -54,8 +54,10 @@ Reach paid traction quickly with subscription products that deliver local decisi
 3. Frictionless upgrades from individual to team plans
 4. Expansion through geography and feature depth
 
-## KPI Targets (Directionally)
-- Trial-to-paid conversion
-- MRR growth by persona and market
-- Churn and net revenue retention
-- Average revenue per user/seat
+## KPI Targets (First 2 Quarters Post-Launch)
+These targets apply to the initial TX+NY launch window and should be recalibrated after quarter two. Target ranges are based on early-stage proptech SaaS benchmarks and internal launch projections for geographically focused products.
+- Trial-to-paid conversion: **15-20%** overall (target **20%+** for Agent/Broker Pro)
+- Monthly MRR growth: **12-18%** month-over-month during initial TX+NY expansion
+- Monthly logo churn: **<5%** for B2B tiers, **<7%** for B2C tier
+- Net revenue retention (B2B cohorts): **105-115%** via seat and tier expansion
+- Average revenue per paid account: **$79-$149/mo** blended, improving with enterprise mix

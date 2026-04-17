@@ -50,9 +50,9 @@ Every record is normalized to geography so feeds can auto-localize to user conte
 | 7 | Propmodo | propmodo.com | PropTech and operational innovation signals |
 | 8 | NAIOP | naiop.org | Development and policy context |
 | 9 | Urban Land Institute (ULI) | urbanland.uli.org | Land-use, planning, long-cycle development context |
-| 10 | Yardi Matrix* | yardimatrix.com | Structured market intelligence and pipeline data |
+| 10 | Yardi Matrix | yardimatrix.com | Structured market intelligence and pipeline data |
 
-\*Use Yardi Matrix only within license permissions and commercialization terms.
+*Use Yardi Matrix only within license permissions and commercialization terms.*
 
 ## 4) What Markit Extracts and Structures
 
@@ -164,12 +164,11 @@ cd backend
 
 ### Run Existing Tests
 ```bash
-# Python tests
-cd /home/runner/work/Markit/Markit
+# Python tests (run from repository root)
 pytest -q
 
 # Java backend tests
-cd /home/runner/work/Markit/Markit/backend
+cd backend
 ./gradlew --no-daemon --console=plain test
 ```
 

@@ -22,10 +22,10 @@ This repository is configured for deployment with a Java backend, Python scrapin
 
 ## Local Validation Before Deploy
 ```bash
-cd /home/runner/work/Markit/Markit
+# from repository root
 pytest -q
 
-cd /home/runner/work/Markit/Markit/backend
+cd backend
 ./gradlew --no-daemon --console=plain test
 ```
 
