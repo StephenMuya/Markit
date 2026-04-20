@@ -1,26 +1,34 @@
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
-*.pyc
-
-# Java & Gradle
-backend/build/
-backend/.gradle/
-backend/out/
-*.class
-*.jar
-!backend/gradle/wrapper/gradle-wrapper.jar
-*.war
-*.ear
-
-# IDE
-.vscode/
-.idea/
-*.iml
-
-# Build artifacts
-/dist/
-/build/
-
-# Python testing
+*.py[cod]
 .pytest_cache/
+pytest-cache-files-*/
+.venv/
+backend/.venv/
+backend/.pytest_cache/
+backend/htmlcov/
 
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Local environment files
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# IDEs
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
