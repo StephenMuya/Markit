@@ -23,9 +23,15 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         float: "float 7s ease-in-out infinite",
+        marquee: "marquee 25s linear infinite",
+        "spin-slow": "spin 8s linear infinite",
       },
     },
   },
