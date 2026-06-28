@@ -1,9 +1,50 @@
 @import "tailwindcss";
 
+@theme {
+  /* Colors */
+  --color-parchment: #f6efe5;
+  --color-ink: #1c1917;
+  --color-ember: #c2410c;
+  --color-clay: #f3d7be;
+  --color-ocean: #155e75;
+  --color-moss: #365314;
+
+  /* Fonts */
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-nunito: "Nunito", sans-serif;
+
+  /* Shadows */
+  --shadow-glow: 0 28px 70px -30px rgba(120, 53, 15, 0.45);
+
+  /* Animations & Keyframes */
+  --animate-float: float 7s ease-in-out infinite;
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  --animate-marquee: marquee 25s linear infinite;
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  --animate-spin-slow: spin 8s linear infinite;
+}
+
 :root {
   color: #f1f5f9;
   background: #0f172a;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 html {
@@ -22,17 +63,4 @@ body {
 
 ::selection {
   background: rgba(194, 65, 12, 0.2);
-}
-
-.animate-marquee {
-  animation: marquee 25s linear infinite;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
 }
