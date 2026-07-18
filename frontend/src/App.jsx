@@ -1,6 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Hero from "./features/landing/Hero.jsx";
+import HowItWorks from "./features/landing/HowItWorks.jsx";
+import UseCases from "./features/landing/UseCases.jsx";
+import Infrastructure from "./features/landing/Infrastructure.jsx";
+import CallToAction from "./features/landing/CallToAction.jsx";
+import Faq from "./features/landing/Faq.jsx";
+import Footer from "./features/landing/Footer.jsx";
 import Layout from "./features/navigation/Layout.jsx";
 import GlobalErrorFallback from "./components/GlobalErrorFallback/GlobalErrorFallback.jsx";
 
@@ -14,7 +20,19 @@ const router = createBrowserRouter([
     // The home landing page requires a transparent navbar over its background image,
     // so it renders its own layout independently.
     path: "/",
-    element: <Hero />,
+    element: (
+      <>
+        <main>
+          <Hero />
+          <HowItWorks />
+          <UseCases />
+          <Infrastructure />
+          <CallToAction />
+          <Faq />
+        </main>
+        <Footer />
+      </>
+    ),
     errorElement: <GlobalErrorFallback />,
   },
   {

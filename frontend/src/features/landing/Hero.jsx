@@ -7,7 +7,7 @@ const BrandScroller = lazy(() => import("./BrandScroller"));
 
 export default function Hero() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* ── Full-bleed skyline background ── */}
       <img
         src="/city-skyline.png"
@@ -35,6 +35,6 @@ export default function Hero() {
           </Suspense>
         </article>
       </div>
-    </main>
+    </section>
   );
 }
