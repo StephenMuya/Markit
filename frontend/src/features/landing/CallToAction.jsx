@@ -9,9 +9,23 @@ export default function CallToAction() {
       {/* Abstract grid pattern */}
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 
+      <style>{`
+        @keyframes gradient-slide {
+          to { background-position: -200% center; }
+        }
+        .animate-gradient-slide {
+          animation: gradient-slide 5s linear infinite;
+        }
+      `}</style>
+
       <div className="relative z-10 mx-auto max-w-5xl px-6">
         <h2 className="text-5xl font-semibold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
-          Stop searching.<br />Start analyzing.
+          <span className="animate-gradient-slide bg-[length:200%_auto] bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent block pb-2">
+            Stop searching.
+          </span>
+          <span className="animate-gradient-slide bg-[length:200%_auto] bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent block">
+            Start analyzing.
+          </span>
         </h2>
         <p className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-zinc-400 sm:text-xl lg:text-2xl">
           Join the investors, agents, and buyers who are already leveraging Markit&apos;s structured data engine to find the signal in the noise.

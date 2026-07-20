@@ -17,8 +17,8 @@ export default function Hero() {
 
       {/* Dark overlay — moody sky, high contrast */}
       <div className="absolute inset-0 bg-black/65" />
-      {/* Stronger darkening at bottom for building depth */}
-      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 to-transparent" />
+      {/* Stronger darkening at bottom — fades into HowItWorks bg-zinc-950 */}
+      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-zinc-950 to-transparent" />
 
       {/* ── Content ── */}
       <div className="relative z-10">
