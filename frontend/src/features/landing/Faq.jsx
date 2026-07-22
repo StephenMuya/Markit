@@ -1,35 +1,8 @@
 import { useEffect, useRef } from "react";
 import SectionBackdrop from "./SectionBackdrop";
+import { faqItems } from "../../data/siteContent";
 
 export default function Faq() {
-  const faqs = [
-    {
-      question: "Where does Markit source its data?",
-      answer:
-        "We aggregate, normalize, and verify commercial real estate data from over 120+ public registries, broker-specific feeds, and syndication networks.",
-    },
-    {
-      question: "How often is the database updated?",
-      answer:
-        "Our data engine syncs every 24 hours. This ensures active listings reflect current market conditions and off-market statuses are accurately flagged.",
-    },
-    {
-      question: "How do you handle duplicate listings from different brokers?",
-      answer:
-        "Our system automatically cross-references addresses, APNs, and property metrics to merge duplicate postings into a single, clean source of truth.",
-    },
-    {
-      question: "Can I export the data for my own financial modeling?",
-      answer:
-        "Yes. Any filtered search, comp report, or watchlist can be instantly exported to CSV or Excel.",
-    },
-    {
-      question: "Do you offer developer API access?",
-      answer:
-        "Yes. API access is available for teams looking to pipe our normalized CRE data directly into their internal dashboards or proprietary brokerage tools.",
-    },
-  ];
-
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -91,7 +64,7 @@ export default function Faq() {
 
         {/* FAQ List */}
         <div className="flex flex-col space-y-4">
-          {faqs.map((faq, index) => (
+          {faqItems.map((faq, index) => (
             <article
               key={index}
               data-fade

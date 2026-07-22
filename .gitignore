@@ -24,6 +24,7 @@ backend/.env.*
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
+docs/BACKEND_PREP.md
 
 # IDEs
 .idea/

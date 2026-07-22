@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import Dropdown from "../../components/Dropdown/Dropdown";
-
-const productItems = ["Search Dashboard", "Clean Data", "Smart Categories", "Market Alerts"];
-const solutionItems = ["Buyers", "Agents", "Investors"];
+import { navigationContent } from "../../data/siteContent";
 
 export default function Navbar({ onSignInClick }) {
   return (
@@ -12,8 +10,8 @@ export default function Navbar({ onSignInClick }) {
       </Link>
 
       <nav className="hidden items-center gap-1 md:flex">
-        <Dropdown label="Product" items={productItems} dark />
-        <Dropdown label="Solutions" items={solutionItems} dark />
+        <Dropdown label="Product" items={navigationContent.productItems} dark />
+        <Dropdown label="Solutions" items={navigationContent.solutionItems} dark />
         <a
           className="rounded-md px-3 py-2 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
           href="#sources"

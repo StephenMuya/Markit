@@ -1,15 +1,4 @@
-const trustedBrands = [
-  "Zillow",
-  "Trulia",
-  "Redfin",
-  "CoStar",
-  "LoopNet",
-  "CBRE",
-  "JLL",
-  "Cushman & Wakefield",
-  "Realtor.com",
-  "Keller Williams",
-];
+import { trustedBrands } from "../../data/siteContent";
 
 export default function BrandScroller() {
   return (
