@@ -48,30 +48,24 @@ export default function HowItWorks() {
       <div className="w-full px-6 lg:px-12">
         <div className="relative mx-auto w-full max-w-[120rem]">
           {/* Section tag — matches Infrastructure & UseCases */}
-          <div
-            data-fade
-            data-delay="0"
-            style={f(0)}
-            className="mb-16 text-center"
-          >
+          <div data-fade data-delay="0" style={f(0)} className="mb-16 text-center">
             <span className="text-sm font-bold tracking-widest text-zinc-500 uppercase">
               How It Works
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:grid-rows-2 lg:min-h-[800px]">
-
+          <div className="grid grid-cols-1 gap-8 lg:min-h-[800px] lg:grid-cols-2 lg:grid-rows-2">
             {/* ── Header card (Left top) ── */}
             <header
               data-fade
               data-delay="0"
               style={f(0)}
-              className="group relative flex flex-col justify-center items-center overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] p-10 hover:bg-white/[0.03] lg:col-start-1 lg:row-start-1 lg:p-14"
+              className="group relative flex flex-col items-center justify-center overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] p-10 hover:bg-white/[0.03] lg:col-start-1 lg:row-start-1 lg:p-14"
             >
               <img
                 src="/how-it-works-hero.png"
                 alt=""
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none opacity-20 transition-opacity duration-700 group-hover:opacity-30"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-700 select-none group-hover:opacity-30"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/40 to-zinc-950/60" />
 
@@ -80,7 +74,7 @@ export default function HowItWorks() {
                   data-fade
                   data-delay="120"
                   style={f(120)}
-                  className="uppercase font-semibold leading-none tracking-tighter whitespace-nowrap text-[clamp(2.5rem,6vw,8rem)]"
+                  className="text-[clamp(2.5rem,6vw,8rem)] leading-none font-semibold tracking-tighter whitespace-nowrap uppercase"
                 >
                   The Pipeline
                 </h2>
@@ -88,7 +82,7 @@ export default function HowItWorks() {
                   data-fade
                   data-delay="260"
                   style={f(260)}
-                  className="mt-4 text-3xl text-zinc-400 whitespace-nowrap tracking-wide"
+                  className="mt-4 text-3xl tracking-wide whitespace-nowrap text-zinc-400"
                 >
                   From raw fragments to structured insights.
                 </p>
@@ -105,7 +99,7 @@ export default function HowItWorks() {
               <img
                 src="/how-it-works-ingest.png"
                 alt=""
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none opacity-20 transition-opacity duration-700 group-hover:opacity-30"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-700 select-none group-hover:opacity-30"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/50 to-transparent" />
 
@@ -131,7 +125,8 @@ export default function HowItWorks() {
                 style={f(520)}
                 className="relative z-10 mt-4 text-lg leading-relaxed text-zinc-400"
               >
-                We scan and scrape raw, real-time property listings from over 120+ major CRE platforms and fragmented real estate sites simultaneously.
+                We scan and scrape raw, real-time property listings from over 120+ major CRE
+                platforms and fragmented real estate sites simultaneously.
               </p>
             </article>
 
@@ -145,7 +140,7 @@ export default function HowItWorks() {
               <img
                 src="/how-it-works-process.png"
                 alt=""
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none opacity-20 transition-opacity duration-700 group-hover:opacity-30"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-700 select-none group-hover:opacity-30"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/50 to-transparent" />
 
@@ -171,7 +166,8 @@ export default function HowItWorks() {
                 style={f(490)}
                 className="relative z-10 mt-4 text-lg leading-relaxed text-zinc-400"
               >
-                Our engine automatically normalizes text, strips duplicates, and parses messy details into structured categories tailored for agents, buyers, and investors.
+                Our engine automatically normalizes text, strips duplicates, and parses messy
+                details into structured categories tailored for agents, buyers, and investors.
               </p>
             </article>
 
@@ -185,7 +181,7 @@ export default function HowItWorks() {
               <img
                 src="/how-it-works-deliver.png"
                 alt=""
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none opacity-20 transition-opacity duration-700 group-hover:opacity-30"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-700 select-none group-hover:opacity-30"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/50 to-transparent" />
 
@@ -211,10 +207,10 @@ export default function HowItWorks() {
                 style={f(640)}
                 className="relative z-10 mt-4 text-lg leading-relaxed text-zinc-400"
               >
-                The finalized data lands directly in your unified, lightning-fast dashboard, ready for you to filter, analyze, and act on instantly.
+                The finalized data lands directly in your unified, lightning-fast dashboard, ready
+                for you to filter, analyze, and act on instantly.
               </p>
             </article>
-
           </div>
         </div>
       </div>

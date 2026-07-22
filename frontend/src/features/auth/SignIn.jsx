@@ -3,10 +3,22 @@ import { useEffect, useState } from "react";
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-      <path fill="currentColor" d="M21.35 11.1H12v2.98h5.35c-.23 1.38-1 2.54-2.14 3.32v2.76h3.46c2.02-1.86 3.18-4.6 3.18-7.86 0-.76-.07-1.47-.2-2.2Z" />
-      <path fill="currentColor" d="M12 22c2.97 0 5.46-.98 7.28-2.66l-3.46-2.76c-.96.65-2.2 1.03-3.82 1.03-2.94 0-5.43-1.87-6.32-4.4H2.09v2.84A10 10 0 0 0 12 22Z" />
-      <path fill="currentColor" d="M5.68 13.21A5.98 5.98 0 0 1 5.36 11c0-.77.13-1.52.32-2.21V5.95H2.09A10 10 0 0 0 2 11c0 1.61.39 3.14 1.07 4.45l2.61-2.24Z" />
-      <path fill="currentColor" d="M12 4.12c1.62 0 3.07.56 4.22 1.66l3.16-3.16C17.45.88 14.97 0 12 0A10 10 0 0 0 2.09 5.95l3.59 2.84C6.57 6 9.06 4.12 12 4.12Z" />
+      <path
+        fill="currentColor"
+        d="M21.35 11.1H12v2.98h5.35c-.23 1.38-1 2.54-2.14 3.32v2.76h3.46c2.02-1.86 3.18-4.6 3.18-7.86 0-.76-.07-1.47-.2-2.2Z"
+      />
+      <path
+        fill="currentColor"
+        d="M12 22c2.97 0 5.46-.98 7.28-2.66l-3.46-2.76c-.96.65-2.2 1.03-3.82 1.03-2.94 0-5.43-1.87-6.32-4.4H2.09v2.84A10 10 0 0 0 12 22Z"
+      />
+      <path
+        fill="currentColor"
+        d="M5.68 13.21A5.98 5.98 0 0 1 5.36 11c0-.77.13-1.52.32-2.21V5.95H2.09A10 10 0 0 0 2 11c0 1.61.39 3.14 1.07 4.45l2.61-2.24Z"
+      />
+      <path
+        fill="currentColor"
+        d="M12 4.12c1.62 0 3.07.56 4.22 1.66l3.16-3.16C17.45.88 14.97 0 12 0A10 10 0 0 0 2.09 5.95l3.59 2.84C6.57 6 9.06 4.12 12 4.12Z"
+      />
     </svg>
   );
 }
@@ -14,8 +26,14 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-      <path fill="currentColor" d="M16.7 13.2c0-2.3 1.9-3.4 1.9-3.4-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8-.8 0-1.9-.8-3-.8-1.5 0-3 .9-3.9 2.2-1.6 2.4-.4 5.9 1.1 7.9.7 1 1.5 2 2.6 1.9 1 0 1.4-.6 2.7-.6s1.7.6 2.8.6c1.1 0 1.8-1 2.5-1.9.8-1 1.1-2 1.1-2.1 0 0-2-.8-2-2.8Z" />
-      <path fill="currentColor" d="M14.7 3.7c.6-.8 1-1.9.9-3-1 .1-2.2.7-2.9 1.5-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 3-1.4Z" />
+      <path
+        fill="currentColor"
+        d="M16.7 13.2c0-2.3 1.9-3.4 1.9-3.4-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8-.8 0-1.9-.8-3-.8-1.5 0-3 .9-3.9 2.2-1.6 2.4-.4 5.9 1.1 7.9.7 1 1.5 2 2.6 1.9 1 0 1.4-.6 2.7-.6s1.7.6 2.8.6c1.1 0 1.8-1 2.5-1.9.8-1 1.1-2 1.1-2.1 0 0-2-.8-2-2.8Z"
+      />
+      <path
+        fill="currentColor"
+        d="M14.7 3.7c.6-.8 1-1.9.9-3-1 .1-2.2.7-2.9 1.5-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 3-1.4Z"
+      />
     </svg>
   );
 }
@@ -23,7 +41,10 @@ function AppleIcon() {
 function LinkedInIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-      <path fill="currentColor" d="M4.98 3.5a2.48 2.48 0 1 1 0 4.96 2.48 2.48 0 0 1 0-4.96ZM3 8.75h3.95V21H3V8.75Zm7.02 0h3.78v1.67h.05c.53-1 1.84-2.05 3.78-2.05 4.04 0 4.79 2.66 4.79 6.12V21h-3.94v-5.2c0-1.24-.02-2.83-1.73-2.83-1.74 0-2 1.36-2 2.74V21h-3.93V8.75Z" />
+      <path
+        fill="currentColor"
+        d="M4.98 3.5a2.48 2.48 0 1 1 0 4.96 2.48 2.48 0 0 1 0-4.96ZM3 8.75h3.95V21H3V8.75Zm7.02 0h3.78v1.67h.05c.53-1 1.84-2.05 3.78-2.05 4.04 0 4.79 2.66 4.79 6.12V21h-3.94v-5.2c0-1.24-.02-2.83-1.73-2.83-1.74 0-2 1.36-2 2.74V21h-3.93V8.75Z"
+      />
     </svg>
   );
 }
@@ -79,7 +100,9 @@ export default function SignIn({ onClose }) {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.03),transparent_28%)]" />
             <div className="relative z-10 flex h-full min-h-[32rem] flex-col justify-between gap-14 py-8 lg:py-10">
               <div className="max-w-xl">
-                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Markit access</p>
+                <p className="text-sm font-semibold tracking-[0.35em] text-emerald-300/80 uppercase">
+                  Markit access
+                </p>
                 <h1 className="mt-5 max-w-lg text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
                   {leftPanelTitle}
                 </h1>
@@ -97,8 +120,12 @@ export default function SignIn({ onClose }) {
           >
             <div className="mb-10 flex items-start justify-between gap-4 lg:mb-12">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300/80">
-                  {isResetMode ? "Password recovery" : isSignInMode ? "Welcome back" : "Join Markit"}
+                <p className="text-sm font-semibold tracking-[0.3em] text-emerald-300/80 uppercase">
+                  {isResetMode
+                    ? "Password recovery"
+                    : isSignInMode
+                      ? "Welcome back"
+                      : "Join Markit"}
                 </p>
                 <h2 className="mt-3 text-3xl font-black tracking-tight">
                   {isResetMode ? "Reset Password" : isSignInMode ? "Sign In" : "Create Account"}
@@ -134,7 +161,7 @@ export default function SignIn({ onClose }) {
                     type="email"
                     autoComplete="email"
                     placeholder="you@example.com"
-                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                   />
                 </div>
               ) : !isSignInMode ? (
@@ -148,7 +175,7 @@ export default function SignIn({ onClose }) {
                     type="text"
                     autoComplete="name"
                     placeholder="Your full name"
-                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                   />
                 </div>
               ) : null}
@@ -164,7 +191,7 @@ export default function SignIn({ onClose }) {
                     type="text"
                     inputMode="numeric"
                     placeholder="Enter the code from your email"
-                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                   />
                 </div>
               ) : null}
@@ -179,7 +206,7 @@ export default function SignIn({ onClose }) {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                  className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                 />
               </div>
 
@@ -193,7 +220,7 @@ export default function SignIn({ onClose }) {
                   type="password"
                   autoComplete={isResetMode ? "new-password" : "current-password"}
                   placeholder={isResetMode ? "Enter a new password" : "Enter your password"}
-                  className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                  className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                 />
               </div>
 
@@ -208,14 +235,16 @@ export default function SignIn({ onClose }) {
                     type="password"
                     autoComplete="new-password"
                     placeholder="Re-enter your new password"
-                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
+                    className="w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-emerald-300/45 focus:bg-white/8"
                   />
                 </div>
               ) : null}
 
               <div className="flex items-center justify-between gap-4 pt-1 text-sm">
                 {isResetMode ? (
-                  <span className="text-white/45">Use a strong password you do not reuse elsewhere.</span>
+                  <span className="text-white/45">
+                    Use a strong password you do not reuse elsewhere.
+                  </span>
                 ) : (
                   <label className="flex items-center gap-2 text-white/65">
                     <input
@@ -254,7 +283,7 @@ export default function SignIn({ onClose }) {
 
             {!isResetMode ? (
               <>
-                <div className="my-6 flex items-center gap-4 text-xs uppercase tracking-[0.32em] text-white/30">
+                <div className="my-6 flex items-center gap-4 text-xs tracking-[0.32em] text-white/30 uppercase">
                   <span className="h-px flex-1 bg-white/10" />
                   <span>Or continue with</span>
                   <span className="h-px flex-1 bg-white/10" />
