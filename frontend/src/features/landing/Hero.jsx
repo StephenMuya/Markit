@@ -5,7 +5,7 @@ import HeroContent from "./HeroContent";
 const SocialProof = lazy(() => import("./SocialProof"));
 const BrandScroller = lazy(() => import("./BrandScroller"));
 
-export default function Hero() {
+export default function Hero({ onSignInClick }) {
   return (
     <section className="relative min-h-screen overflow-hidden">
       {/* ── Full-bleed skyline background ── */}
@@ -22,7 +22,7 @@ export default function Hero() {
 
       {/* ── Content ── */}
       <div className="relative z-10">
-        <Navbar />
+        <Navbar onSignInClick={onSignInClick} />
 
         {/* Hero content */}
         <article className="mx-auto flex max-w-7xl flex-col justify-center px-6 pt-6 pb-10 lg:min-h-[calc(100vh-80px)] lg:pt-8 lg:pb-16">
