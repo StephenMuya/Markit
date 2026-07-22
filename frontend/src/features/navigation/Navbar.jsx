@@ -4,7 +4,7 @@ import Dropdown from "../../components/Dropdown/Dropdown";
 const productItems = ["Search Dashboard", "Clean Data", "Smart Categories", "Market Alerts"];
 const solutionItems = ["Buyers", "Agents", "Investors"];
 
-export default function Navbar() {
+export default function Navbar({ onSignInClick }) {
   return (
     <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
       <Link to="/" className="text-xl font-black tracking-normal text-white">
@@ -35,12 +35,13 @@ export default function Navbar() {
       </nav>
 
       <div className="flex items-center gap-3">
-        <Link
+        <button
+          type="button"
           className="rounded-md bg-white px-4 py-2 text-sm font-bold text-black shadow-sm transition hover:bg-gray-400"
-          to="/signin"
+          onClick={onSignInClick}
         >
           Sign In
-        </Link>
+        </button>
       </div>
     </header>
   );
