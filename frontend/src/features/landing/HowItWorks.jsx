@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import SectionBackdrop from "./SectionBackdrop";
 
 export default function HowItWorks() {
   const sectionRef = useRef(null);
@@ -42,7 +43,8 @@ export default function HowItWorks() {
   });
 
   return (
-    <section className="bg-zinc-950 py-24 text-white" ref={sectionRef}>
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white" ref={sectionRef}>
+      <SectionBackdrop variant="process" />
       <div className="w-full px-6 lg:px-12">
         <div className="relative mx-auto w-full max-w-[120rem]">
           {/* Section tag — matches Infrastructure & UseCases */}
