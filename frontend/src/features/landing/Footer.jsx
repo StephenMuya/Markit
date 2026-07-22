@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import SectionBackdrop from "./SectionBackdrop";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-zinc-950 pb-16 pt-24 text-white">
+    <footer className="relative overflow-hidden border-t border-white/5 bg-zinc-950 pb-16 pt-24 text-white">
+      <SectionBackdrop variant="footer" />
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-12">
         <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-5">
           

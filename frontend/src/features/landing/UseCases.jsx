@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import SectionBackdrop from "./SectionBackdrop";
 
 export default function UseCases() {
   const checkIcon = (
@@ -48,7 +49,8 @@ export default function UseCases() {
   });
 
   return (
-    <section className="bg-zinc-950 py-24 text-white" ref={sectionRef}>
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white" ref={sectionRef}>
+      <SectionBackdrop variant="default" />
       <div className="mx-auto w-full max-w-[120rem] px-6 lg:px-12">
 
         {/* Section Header */}

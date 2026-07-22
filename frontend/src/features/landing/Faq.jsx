@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import SectionBackdrop from "./SectionBackdrop";
 
 export default function Faq() {
   const faqs = [
@@ -62,7 +63,8 @@ export default function Faq() {
   });
 
   return (
-    <section className="bg-zinc-950 py-24 text-white lg:py-32" ref={sectionRef}>
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white lg:py-32" ref={sectionRef}>
+      <SectionBackdrop variant="faq" />
       <div className="mx-auto w-full max-w-4xl px-6 lg:px-12">
         {/* Section Header */}
         <div className="mb-16 text-center">

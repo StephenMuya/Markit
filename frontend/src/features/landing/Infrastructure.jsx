@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import SectionBackdrop from "./SectionBackdrop";
 
 export default function Infrastructure() {
   const sectionRef = useRef(null);
@@ -39,7 +40,8 @@ export default function Infrastructure() {
   });
 
   return (
-    <section className="bg-zinc-950 py-24 text-white" ref={sectionRef}>
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white" ref={sectionRef}>
+      <SectionBackdrop variant="infrastructure" />
       <div className="mx-auto w-full max-w-[120rem] px-6 lg:px-12">
         {/* Section Header */}
         <header className="mb-16 text-center">
